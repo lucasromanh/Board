@@ -1,71 +1,45 @@
 import PropTypes from 'prop-types';
-import { Droppable } from '@hello-pangea/dnd';
+import { Draggable } from '@hello-pangea/dnd';
 import Card from './Card';
-import { CardListContainer, CardListWrapper } from '../styles/CardListStyles';
-import CardListHeader from './CardListHeader';
-import AddForm from './AddForm';
 
-const CardList = ({
-  column,
-  columnId,
-  onChangeListName,
-  onRemoveList,
-  onDuplicateList,
-  onAddCard,
-  onRemoveCard,
-  onDuplicateCard,
-  onChangeCardContent,
-}) => {
+const CardList = ({ cards, searchTerm, onEditCard, onDeleteCard }) => {
   return (
-    <Droppable droppableId={columnId}>
-      {(provided, snapshot) => (
-        <CardListContainer
-          ref={provided.innerRef}
-          isDraggingOver={snapshot.isDraggingOver}
-          {...provided.droppableProps}
-        >
-          <CardListWrapper>
-            <CardListHeader
-              listName={column.title}
-              onChangeListName={(newName) => onChangeListName(columnId, newName)}
-              onRemoveList={() => onRemoveList(columnId)}
-              onDuplicateList={() => onDuplicateList(columnId)}
-            />
-            {column.cards.map((card, index) => (
-              <Card
-                key={card.id}
-                card={card}
-                index={index}
-                columnId={columnId}
-                onRemoveCard={() => onRemoveCard(columnId, card.id)}
-                onDuplicateCard={() => onDuplicateCard(columnId, card.id)}
-                onChangeCardContent={(updatedCard) => onChangeCardContent(columnId, card.id, updatedCard)}
-              />
-            ))}
-            {provided.placeholder}
-            <AddForm
-              placeholder="Agregar a Tarjeta"
-              onConfirm={(content) =>
-                onAddCard(columnId, { id: `card-${Date.now()}`, title: content, content })
-              }
-            />
-          </CardListWrapper>
-        </CardListContainer>
-      )}
-    </Droppable>
+    <div className="desk-items">
+      {cards
+        .filter(card => card.title.toLowerCase().includes(searchTerm.toLowerCase()))
+        .map((card, index) => (
+          <Draggable key={card.id} draggableId={card.id} index={index}>
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+              >
+                <Card
+                  key={card.id}
+                  card={card}
+                  onEdit={(updatedCard) => onEditCard(card.id, updatedCard)}
+                  onDelete={() => onDeleteCard(card.id)}
+                />
+              </div>
+            )}
+          </Draggable>
+        ))}
+    </div>
   );
 };
 
 CardList.propTypes = {
-  column: PropTypes.object.isRequired,
-  columnId: PropTypes.string.isRequired,
-  onChangeListName: PropTypes.func.isRequired,
-  onRemoveList: PropTypes.func.isRequired,
-  onDuplicateList: PropTypes.func.isRequired,
-  onAddCard: PropTypes.func.isRequired,
-  onRemoveCard: PropTypes.func.isRequired,
-  onDuplicateCard: PropTypes.func.isRequired,
-  onChangeCardContent: PropTypes.func.isRequired,
+  cards: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      content: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  searchTerm: PropTypes.string.isRequired,
+  onEditCard: PropTypes.func.isRequired,
+  onDeleteCard: PropTypes.func.isRequired,
 };
 
 export default CardList;

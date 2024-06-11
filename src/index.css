@@ -1,7 +1,28 @@
+* {
+  box-sizing: border-box;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+html {
+  position: relative;
+  height: 100%;
+}
+
 body {
+  font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  line-height: 18px;
+  color: #4d4d4d;
+  font-weight: normal;
+  padding: 0 10px;
+  background-color: rgb(0, 121, 191);
+  position: relative;
+  height: 100%;
   margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .App {
@@ -9,36 +30,150 @@ body {
   text-align: center;
 }
 
-div {
-  padding: 10px;
+a {
+  text-decoration: none;
 }
 
-h3 {
-  margin: 0;
-  padding: 10px;
-  background-color: #f4f4f4;
-  border-bottom: 1px solid #ccc;
+img {
+  max-width: 100%;
 }
 
-input[type="text"] {
-  padding: 8px;
-  margin: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+main {
+  padding: 50px 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 100%;
+  white-space: nowrap;
 }
 
-button {
-  padding: 8px 16px;
-  margin: 8px;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
+.desk, .desk-placeholder, .desk-placeholder:hover {
+  width: 270px;
+  display: inline-block;
+  height: 100%;
+  overflow: hidden;
+  min-height: 100px;
+  background-color: #e2e4e6;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  padding-bottom: 20px;
+  margin-right: 20px;
+  vertical-align: top;
+}
+
+.desk-head {
+  position: relative;
+  padding: 5px 8px;
+  margin-bottom: 10px;
+}
+
+.desk-name {
+  font-weight: bold;
+  white-space: normal;
+  width: 100%;
+}
+
+.desk-items {
+  overflow-y: auto;
+  height: 100%;
+  padding-bottom: 20px;
+}
+
+.placeholder, .placeholder:hover {
+  height: 161px;
+  background-color: rgba(208, 208, 208, 1);
+}
+
+.item {
+  width: 90%;
+  margin: 0 auto 10px;
+  background: #fff;
+  min-height: 100px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+  transition: 0.15s;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #0056b3;
+.item:hover {
+  background: #f7f7f7;
+}
+
+.item-name {
+  padding: 5px 10px;
+  border-bottom: 1px solid #dbdbdb;
+  white-space: normal;
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+.item-container {
+  padding: 10px;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.item-avatar-wrap {
+  width: 70px;
+  float: left;
+  margin-bottom: 5px;
+}
+
+.item-avatar-wrap img {
+  width: 50px;
+  height: 50px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 1px solid #dbdbdb;
+}
+
+.item-content {
+  white-space: normal;
+}
+
+.item-author {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.item-content p {
+  margin: 5px 0;
+}
+
+.item-performers {
+  clear: both;
+  padding: 5px 10px;
+}
+
+.add-performers {
+  float: left;
+}
+
+.delete-performers {
+  float: right;
+}
+
+.add-performers a,
+.delete-performers a {
+  display: block;
+  float: left;
+  margin-right: 3px;
+}
+
+.add-performers a img,
+.delete-performers a img {
+  width: 15px;
+  height: 15px;
+}
+
+.performer {
+  float: left;
+}
+
+.performer img {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
 }
 
 .board {
@@ -124,4 +259,59 @@ button:hover {
   margin-bottom: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.board-container {
+  display: flex;
+}
+
+.side-panel {
+  width: 0;
+  transition: width 0.3s;
+  overflow: hidden;
+  background: #3cf2ff;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  padding: 22px;
+  height: 100vh;
+  position:sticky;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.side-panel.open {
+  width: 300px;
+}
+
+.side-panel .toggle-button {
+  position: flex;
+  top: 10px;
+  right: -60px;
+  width: 50px;
+  height: 30px;
+  background: #7100b3;
+  color: white;
+  border:darksalmon;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.side-panel .side-panel-content {
+  margin-top: 90px;
+}
+
+.side-panel .side-panel-content button {
+  display:flex;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #007bff;
+  color: white;
+  border:salmon;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.side-panel .side-panel-content button:hover {
+  background: #10d382be;
 }
