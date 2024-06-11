@@ -28,8 +28,8 @@ const Button = styled.button.attrs(() => ({
 
 export const ButtonContainer = styled.div`
   position: absolute;
-  top: ${(props) => props.$top || '2px'};
-  right: ${(props) => props.$right || '3px'};
+  top: ${(props) => props.top || '2px'};
+  right: ${(props) => props.right || '3px'};
 `;
 
 const getIconForType = (type) => {

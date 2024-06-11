@@ -1,6 +1,6 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
 
-// Define initial state
+// Define initial state de las tarjetas
 const initialBoardState = {
   columns: [
     {
@@ -32,6 +32,8 @@ const initialBoardState = {
 
 const initialSearchState = '';
 
+
+// Son los reducers para las tarjetas
 const boardSlice = createSlice({
     name: 'board',
     initialState: initialBoardState,
@@ -95,6 +97,8 @@ const boardSlice = createSlice({
     },
   });
 
+
+  // Buscador de contenido de tarjetas
 const searchSlice = createSlice({
   name: 'search',
   initialState: initialSearchState,
