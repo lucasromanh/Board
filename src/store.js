@@ -1,6 +1,5 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
 
-// Define initial state de las tarjetas
 const initialBoardState = {
   columns: [
     {
@@ -32,73 +31,56 @@ const initialBoardState = {
 
 const initialSearchState = '';
 
-
-// Son los reducers para las tarjetas
 const boardSlice = createSlice({
-    name: 'board',
-    initialState: initialBoardState,
-    reducers: {
-      moveCard: (state, action) => {
-        const { source, destination } = action.payload;
-        if (!destination) return;
-  
-        const sourceColumn = state.columns.find(column => column.id === source.droppableId);
-        const destinationColumn = state.columns.find(column => column.id === destination.droppableId);
-        const [movedCard] = sourceColumn.cards.splice(source.index, 1);
-  
-        if (sourceColumn.id === destinationColumn.id) {
-          sourceColumn.cards.splice(destination.index, 0, movedCard);
-        } else {
-          destinationColumn.cards.splice(destination.index, 0, movedCard);
-        }
-      },
-      addCard: (state, action) => {
-        const { columnId, card } = action.payload;
-        const column = state.columns.find(column => column.id === columnId);
-        column.cards.push(card);
-      },
-      removeCard: (state, action) => {
-        const { columnId, cardId } = action.payload;
-        const column = state.columns.find(column => column.id === columnId);
-        column.cards = column.cards.filter(card => card.id !== cardId);
-      },
-      updateCard: (state, action) => {
-        const { columnId, cardId, updatedCard } = action.payload;
-        const column = state.columns.find(column => column.id === columnId);
-        const cardIndex = column.cards.findIndex(card => card.id === cardId);
-        column.cards[cardIndex] = { ...column.cards[cardIndex], ...updatedCard };
-      },
-      duplicateCard: (state, action) => {
-        const { columnId, cardId } = action.payload;
-        const column = state.columns.find(column => column.id === columnId);
-        const card = column.cards.find(card => card.id === cardId);
-        const newCard = { ...card, id: `card-${Date.now()}` };
-        column.cards.push(newCard);
-      },
-      changeListName: (state, action) => {
-        const { columnId, newName } = action.payload;
-        const column = state.columns.find(column => column.id === columnId);
-        column.title = newName;
-      },
-      removeList: (state, action) => {
-        const { columnId } = action.payload;
-        state.columns = state.columns.filter(column => column.id !== columnId);
-      },
-      duplicateList: (state, action) => {
-        const { columnId } = action.payload;
-        const column = state.columns.find(column => column.id === columnId);
-        const newColumn = {
-          ...column,
-          id: `column-${Date.now()}`,
-          cards: column.cards.map(card => ({ ...card, id: `card-${Date.now() + Math.random()}` })),
-        };
-        state.columns.push(newColumn);
-      },
+  name: 'board',
+  initialState: initialBoardState,
+  reducers: {
+    moveCard: (state, action) => {
+      const { source, destination } = action.payload;
+      if (!destination) return;
+
+      const sourceColumn = state.columns.find(column => column.id === source.droppableId);
+      const destinationColumn = state.columns.find(column => column.id === destination.droppableId);
+      const [movedCard] = sourceColumn.cards.splice(source.index, 1);
+
+      if (sourceColumn.id === destinationColumn.id) {
+        sourceColumn.cards.splice(destination.index, 0, movedCard);
+      } else {
+        destinationColumn.cards.splice(destination.index, 0, movedCard);
+      }
     },
-  });
+    addCard: (state, action) => {
+      const { columnId, card } = action.payload;
+      const column = state.columns.find(column => column.id === columnId);
+      column.cards.push(card);
+    },
+    removeCard: (state, action) => {
+      const { columnId, cardId } = action.payload;
+      const column = state.columns.find(column => column.id === columnId);
+      column.cards = column.cards.filter(card => card.id !== cardId);
+    },
+    updateCard: (state, action) => {
+      const { columnId, cardId, updatedCard } = action.payload;
+      const column = state.columns.find(column => column.id === columnId);
+      const cardIndex = column.cards.findIndex(card => card.id === cardId);
+      column.cards[cardIndex] = { ...column.cards[cardIndex], ...updatedCard };
+    },
+    addColumn: (state, action) => {
+      const newColumn = {
+        id: `column-${Date.now()}`,
+        title: action.payload,
+        cards: [],
+      };
+      state.columns.push(newColumn);
+    },
+    updateColumnTitle: (state, action) => {
+      const { columnId, newTitle } = action.payload;
+      const column = state.columns.find(column => column.id === columnId);
+      column.title = newTitle;
+    },
+  },
+});
 
-
-  // Buscador de contenido de tarjetas
 const searchSlice = createSlice({
   name: 'search',
   initialState: initialSearchState,
@@ -119,10 +101,8 @@ export const {
   addCard,
   removeCard,
   updateCard,
-  duplicateCard,
-  changeListName,
-  removeList,
-  duplicateList,
+  addColumn,
+  updateColumnTitle,
 } = boardSlice.actions;
 
 export const { setSearchText } = searchSlice.actions;

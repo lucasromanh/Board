@@ -40,3 +40,88 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+.board {
+  padding: 16px;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-input {
+  padding: 8px 32px 8px 8px; /* espacio para el icono de lupa */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBmaWxsPSIjMDAwMDAwIiBkPSJNMTUuNTI2IDE0LjQ3NGwtMy41NDctMy41NDdhNi44NjIgNi44NjIgMCAwMC0zLjI4NCAxLjA1MyA2Ljk0IDYuOTQgMCAxMDYuOTQgNi45NCA2Ljg2MiA2Ljg2MiAwMDAxLjA1My0zLjI4NGwzLjU0NyAzLjU0N2EuNzI2LjcyNiAwIDAwMS4wMjgtMS4wMjh6TTIuOCA4LjQxNGE1LjY0OSA1LjY0OSAwIDEwMTEuMjk4LjAwMSA1LjY0OSA1LjY0OSAwIDAwLTExLjI5OC4wMDF6Ii8+PC9zdmc+');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.columns {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+}
+
+.column {
+  flex: 1;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.card-list {
+  margin-top: 16px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.editable-title-button, .editable-title-input, .edit-button, .delete-button {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.new-card-form {
+  margin-top: 16px;
+  padding: 16px;
+  background: #e0e0e0;
+  border-radius: 8px;
+}
+
+.new-column-form {
+  margin-top: 16px;
+  padding: 16px;
+  background: #e0e0e0;
+  border-radius: 8px;
+}
+
+.new-column-title, .new-card-title, .new-card-content, .add-card-button, .add-column-button {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.column-title {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

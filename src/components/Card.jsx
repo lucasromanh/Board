@@ -1,49 +1,55 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Draggable } from '@hello-pangea/dnd';
-import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 
-const CardContainer = styled.div`
-  border: 1px solid lightgrey;
-  border-radius: 2px;
-  padding: 8px;
-  margin-bottom: 8px;
-  background-color: white;
-`;
+const Card = ({ card, onEdit, onDelete }) => {
+  const [editableTitle, setEditableTitle] = useState(card.title);
+  const [isEditing, setIsEditing] = useState(false);
 
-const Card = ({ card, index, onRemoveCard, onDuplicateCard }) => {
-  const handleRemoveClick = () => {
-    onRemoveCard(card.id); // Pasar el ID de la tarjeta
-  };
-
-  const handleDuplicateClick = () => {
-    onDuplicateCard(card.id); // Pasar el ID de la tarjeta
+  const handleBlur = () => {
+    setIsEditing(false);
+    onEdit({ title: editableTitle });
   };
 
   return (
-    <Draggable draggableId={card.id} index={index}>
-      {(provided) => (
-        <CardContainer
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
+    <div className="card">
+      {isEditing ? (
+        <input
+          type="text"
+          value={editableTitle}
+          onChange={(e) => setEditableTitle(e.target.value)}
+          onBlur={handleBlur}
+          className="editable-title-input"
+        />
+      ) : (
+        <button 
+          type="button" 
+          className="editable-title-button"
+          onClick={() => setIsEditing(true)}
         >
-          {card.content}
-          <button onClick={handleRemoveClick}>Remove</button>
-          <button onClick={handleDuplicateClick}>Duplicate</button>
-        </CardContainer>
+          {card.title}
+        </button>
       )}
-    </Draggable>
+      <p>{card.content}</p>
+      <button type="button" onClick={() => setIsEditing(true)} className="edit-button">
+        <FontAwesomeIcon icon={faEdit} />
+      </button>
+      <button type="button" onClick={onDelete} className="delete-button">
+        <FontAwesomeIcon icon={faTrash} />
+      </button>
+    </div>
   );
 };
 
 Card.propTypes = {
   card: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
     content: PropTypes.string.isRequired,
   }).isRequired,
-  index: PropTypes.number.isRequired,
-  onRemoveCard: PropTypes.func.isRequired,
-  onDuplicateCard: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default Card;
