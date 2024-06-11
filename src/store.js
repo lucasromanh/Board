@@ -63,7 +63,9 @@ const boardSlice = createSlice({
       const { columnId, cardId, updatedCard } = action.payload;
       const column = state.columns.find(column => column.id === columnId);
       const cardIndex = column.cards.findIndex(card => card.id === cardId);
-      column.cards[cardIndex] = { ...column.cards[cardIndex], ...updatedCard };
+      if (cardIndex !== -1) {
+        column.cards[cardIndex] = { ...column.cards[cardIndex], ...updatedCard };
+      }
     },
     addColumn: (state, action) => {
       const newColumn = {

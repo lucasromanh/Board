@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addCard, updateCard, removeCard, setSearchText, addColumn, updateColumnTitle } from '../store';
 import Column from './Column';
+import './Board.css';
 
 const Board = () => {
   const columns = useSelector(state => state.board.columns);
   const searchTerm = useSelector(state => state.search);
   const dispatch = useDispatch();
   const [newColumnTitle, setNewColumnTitle] = useState('');
-  const [isAsideOpen, setIsAsideOpen] = useState(false);
 
   const handleSearch = (e) => {
     dispatch(setSearchText(e.target.value));
@@ -21,12 +21,30 @@ const Board = () => {
     }
   };
 
+  const handleUpdateColumnTitle = (columnId, newTitle) => {
+    dispatch(updateColumnTitle({ columnId, newTitle }));
+  };
+
+  const handleAddCard = (columnId, { title, content }) => {
+    const newCard = {
+      id: `card-${Date.now()}`,
+      title,
+      content,
+    };
+    dispatch(addCard({ columnId, card: newCard }));
+  };
+
+  const handleEditCard = (columnId, cardId, updatedCard) => {
+    dispatch(updateCard({ columnId, cardId, updatedCard }));
+  };
+
+  const handleDeleteCard = (columnId, cardId) => {
+    dispatch(removeCard({ columnId, cardId }));
+  };
+
   return (
     <div className="board-container">
-      <aside className={`side-panel ${isAsideOpen ? 'open' : ''}`}>
-        <button className="toggle-button" onClick={() => setIsAsideOpen(!isAsideOpen)}>
-          {isAsideOpen ? 'Cerrar' : 'Abrir'}
-        </button>
+      <aside className="side-panel">
         <div className="side-panel-content">
           <h2>Opciones</h2>
           <button>Agregar TABLERO</button>
@@ -34,7 +52,7 @@ const Board = () => {
           <button>Ver USUARIOS CONECTADOS</button>
         </div>
       </aside>
-      <main>
+      <div className="main-content">
         <div className="search-container">
           <input
             type="text"
@@ -50,10 +68,10 @@ const Board = () => {
               key={column.id}
               column={column}
               searchTerm={searchTerm}
-              onUpdateColumnTitle={(newTitle) => dispatch(updateColumnTitle({ columnId: column.id, newTitle }))}
-              onAddCard={(title, content) => dispatch(addCard({ columnId: column.id, card: { id: `card-${Date.now()}`, title, content } }))}
-              onEditCard={(cardId, updatedCard) => dispatch(updateCard({ columnId: column.id, cardId, updatedCard }))}
-              onDeleteCard={(cardId) => dispatch(removeCard({ columnId: column.id, cardId }))}
+              onUpdateColumnTitle={handleUpdateColumnTitle}
+              onAddCard={handleAddCard}
+              onEditCard={handleEditCard}
+              onDeleteCard={handleDeleteCard}
             />
           ))}
           <div className="desk new-column-form">
@@ -67,7 +85,7 @@ const Board = () => {
             <button onClick={handleAddColumn} className="add-column-button">Agregar Columna</button>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Draggable } from '@hello-pangea/dnd';
 import Card from './Card';
 
-const CardList = ({ cards, searchTerm, onEditCard, onDeleteCard }) => {
+const CardList = ({ cards, searchTerm, onEditCard, onDeleteCard, openEditModal }) => {
   return (
     <div className="desk-items">
       {cards
@@ -19,7 +19,8 @@ const CardList = ({ cards, searchTerm, onEditCard, onDeleteCard }) => {
                   key={card.id}
                   card={card}
                   onEdit={(updatedCard) => onEditCard(card.id, updatedCard)}
-                  onDelete={() => onDeleteCard(card.id)}
+                  onDelete={onDeleteCard}
+                  openEditModal={openEditModal}
                 />
               </div>
             )}
@@ -40,6 +41,7 @@ CardList.propTypes = {
   searchTerm: PropTypes.string.isRequired,
   onEditCard: PropTypes.func.isRequired,
   onDeleteCard: PropTypes.func.isRequired,
+  openEditModal: PropTypes.func.isRequired, 
 };
 
 export default CardList;

@@ -2,17 +2,31 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Droppable } from '@hello-pangea/dnd';
 import CardList from './CardList';
+import TaskModal from './TaskModal';
+import './Column.css';
 
 const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard, onDeleteCard }) => {
   const [newCardTitle, setNewCardTitle] = useState('');
   const [newCardContent, setNewCardContent] = useState('');
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAddCard = () => {
     if (newCardTitle && newCardContent) {
-      onAddCard(newCardTitle, newCardContent);
+      onAddCard(column.id, { title: newCardTitle, content: newCardContent });
       setNewCardTitle('');
       setNewCardContent('');
     }
+  };
+
+  const handleEditTask = (task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedTask(null);
+    setIsModalOpen(false);
   };
 
   return (
@@ -27,7 +41,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             <input
               type="text"
               value={column.title}
-              onChange={(e) => onUpdateColumnTitle(e.target.value)}
+              onChange={(e) => onUpdateColumnTitle(column.id, e.target.value)}
               className="desk-name"
             />
           </div>
@@ -36,6 +50,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             searchTerm={searchTerm}
             onEditCard={onEditCard}
             onDeleteCard={onDeleteCard}
+            openEditModal={handleEditTask}
           />
           {provided.placeholder}
           <div className="new-card-form">
@@ -54,6 +69,23 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             />
             <button onClick={handleAddCard} className="add-card-button">Agregar Tarea</button>
           </div>
+          {isModalOpen && (
+            <TaskModal
+              isOpen={isModalOpen}
+              onRequestClose={handleCloseModal}
+              task={selectedTask}
+              onSave={(updatedTask) => {
+                onEditCard(column.id, selectedTask.id, updatedTask);
+                handleCloseModal();
+              }}
+              onAddMember={() => {}}
+              onAddLabel={() => {}}
+              onAddChecklist={() => {}}
+              onAddDueDate={() => {}}
+              onAddAttachment={() => {}}
+              onAddCover={() => {}}
+            />
+          )}
         </div>
       )}
     </Droppable>
