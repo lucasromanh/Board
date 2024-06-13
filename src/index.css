@@ -26,6 +26,12 @@ a {
   margin-bottom: 16px;
 }
 
+.desk {
+  display: flex;
+  height:fit-content ;
+  overflow: hidden;
+  max-height: fit-content;
+}
 
 .column {
   background: #797979a1;
@@ -67,11 +73,14 @@ a {
 
 .new-column-title, .new-card-title, .new-card-content, .add-card-button, .add-column-button {
   display: flex;
-  width: 100%;
-  margin-bottom: 9px;
-  padding: 8px;
+  width: fit-content;
+  height: fit-content;
+  margin-bottom: 1px;
+  padding: 6px;
   border: 1px solid #c619cc80;
   border-radius: 4px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .column-title {
