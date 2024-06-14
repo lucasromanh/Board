@@ -3,6 +3,8 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import Board from './components/Board';
+import PerfilUsuario from './components/PerfilUsuario';
+import CommentManagement from './components/CommentManagement';
 
 const App = () => {
   return (
@@ -11,6 +13,8 @@ const App = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/board" element={<Board />} />
+      <Route path="/profile/:userId" element={<PerfilUsuario />} />
+      <Route path="/comments" element={<CommentManagement />} />
     </Routes>
   );
 };

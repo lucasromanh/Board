@@ -3,12 +3,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addCard, updateCard, removeCard, setSearchText, addColumn, updateColumnTitle } from '../store';
 import Column from './Column';
 import './Board.css';
+import { Link } from 'react-router-dom';
+import useAuth from '../context/useAuth';
+import api from '../api';
 
 const Board = () => {
   const columns = useSelector(state => state.board.columns);
   const searchTerm = useSelector(state => state.search);
   const dispatch = useDispatch();
   const [newColumnTitle, setNewColumnTitle] = useState('');
+  const { user } = useAuth();
 
   const handleSearch = (e) => {
     dispatch(setSearchText(e.target.value));
@@ -25,21 +29,36 @@ const Board = () => {
     dispatch(updateColumnTitle({ columnId, newTitle }));
   };
 
-  const handleAddCard = (columnId, { title, content }) => {
+  const handleAddCard = async (columnId, { title, content }) => {
     const newCard = {
       id: `card-${Date.now()}`,
       title,
       content,
     };
-    dispatch(addCard({ columnId, card: newCard }));
+    try {
+      await api.post('/api/tareas', { columnId, title, content });
+      dispatch(addCard({ columnId, card: newCard }));
+    } catch (error) {
+      console.error('Error al agregar tarjeta:', error);
+    }
   };
 
-  const handleEditCard = (columnId, cardId, updatedCard) => {
-    dispatch(updateCard({ columnId, cardId, updatedCard }));
+  const handleEditCard = async (columnId, cardId, updatedCard) => {
+    try {
+      await api.put(`/api/tareas/${cardId}`, { columnId, ...updatedCard });
+      dispatch(updateCard({ columnId, cardId, updatedCard }));
+    } catch (error) {
+      console.error('Error al editar tarjeta:', error);
+    }
   };
 
-  const handleDeleteCard = (columnId, cardId) => {
-    dispatch(removeCard({ columnId, cardId }));
+  const handleDeleteCard = async (columnId, cardId) => {
+    try {
+      await api.delete(`/api/tareas/${cardId}`);
+      dispatch(removeCard({ columnId, cardId }));
+    } catch (error) {
+      console.error('Error al eliminar tarjeta:', error);
+    }
   };
 
   return (
@@ -50,6 +69,7 @@ const Board = () => {
           <button>Agregar TABLERO</button>
           <button>Agregar USUARIO a tablero</button>
           <button>Ver USUARIOS CONECTADOS</button>
+          {user && <Link to={`/profile/${user.id}`}>Perfil de Usuario</Link>}
         </div>
       </aside>
       <div className="main-content">

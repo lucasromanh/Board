@@ -1,14 +1,14 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Provider } from 'react-redux';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import store, { moveCard } from './store';
 import App from './App';
 import '@fortawesome/fontawesome-svg-core/styles.css';
+import 'bulma/css/bulma.min.css';
 import './index.css';
-import './components/Home.css';
-import './components/Navbar.css';
 import { DragDropContext } from '@hello-pangea/dnd';
+import { AuthProvider } from './context/AuthContext';
 
 const onDragEnd = (result) => {
   const { source, destination } = result;
@@ -29,14 +29,16 @@ const onDragEnd = (result) => {
   }));
 };
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
     <Provider store={store}>
       <DragDropContext onDragEnd={onDragEnd}>
         <Router>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </Router>
       </DragDropContext>
     </Provider>
-  </StrictMode>
+  </React.StrictMode>
 );

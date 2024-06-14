@@ -2,14 +2,20 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import api from '../api'; 
 
 const Card = ({ card, onEdit, onDelete, openEditModal }) => {
   const [editableTitle, setEditableTitle] = useState(card.title);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleBlur = () => {
+  const handleBlur = async () => {
     setIsEditing(false);
-    onEdit({ title: editableTitle });
+    try {
+      await api.put(`/api/tareas/${card.id}`, { title: editableTitle });
+      onEdit({ title: editableTitle });
+    } catch (error) {
+      console.error('Error al editar tarjeta:', error);
+    }
   };
 
   return (
@@ -35,7 +41,14 @@ const Card = ({ card, onEdit, onDelete, openEditModal }) => {
       <button type="button" onClick={() => openEditModal(card)} className="edit-button">
         <FontAwesomeIcon icon={faEdit} />
       </button>
-      <button type="button" onClick={() => onDelete(card.id)} className="delete-button">
+      <button type="button" onClick={async () => {
+        try {
+          await api.delete(`/api/tareas/${card.id}`);
+          onDelete(card.id);
+        } catch (error) {
+          console.error('Error al eliminar tarjeta:', error);
+        }
+      }} className="delete-button">
         <FontAwesomeIcon icon={faTrash} />
       </button>
     </div>

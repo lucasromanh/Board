@@ -34,7 +34,8 @@ a {
 }
 
 .column {
-  background: #797979a1;
+  display: contents;
+  background: #eb9090a1;
   border-radius: 8px;
   padding: 16px;
   min-width: 250px;
@@ -90,5 +91,4 @@ a {
   border: 1px solid #a01212;
   border-radius: 4px;
 }
-
 

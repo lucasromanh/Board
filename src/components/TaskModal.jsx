@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faTags, faCheckSquare, faCalendarAlt, faFileUpload, faImage } from '@fortawesome/free-solid-svg-icons';
 import './TaskModal.css';
 import { useState, useEffect } from 'react';
+import api from '../api'; 
 
 const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLabel, onAddChecklist, onAddDueDate, onAddAttachment, onAddCover }) => {
   const [title, setTitle] = useState('');
@@ -16,9 +17,68 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
     }
   }, [task]);
 
-  const handleSave = () => {
-    onSave({ ...task, title, content });
-    onRequestClose();
+  const handleSave = async () => {
+    try {
+      const response = await api.put(`/api/tareas/${task.id}`, { title, content });
+      onSave(response.data);
+      onRequestClose();
+    } catch (error) {
+      console.error('Error al guardar tarea:', error);
+    }
+  };
+
+  const handleAddMember = async () => {
+    try {
+      await api.post(`/api/tareas/${task.id}/miembros`, { /* datos del miembro */ });
+      onAddMember();
+    } catch (error) {
+      console.error('Error al añadir miembro:', error);
+    }
+  };
+
+  const handleAddLabel = async () => {
+    try {
+      await api.post(`/api/tareas/${task.id}/etiquetas`, { /* datos de la etiqueta */ });
+      onAddLabel();
+    } catch (error) {
+      console.error('Error al añadir etiqueta:', error);
+    }
+  };
+
+  const handleAddChecklist = async () => {
+    try {
+      await api.post(`/api/tareas/${task.id}/checklist`, { /* datos del checklist */ });
+      onAddChecklist();
+    } catch (error) {
+      console.error('Error al añadir checklist:', error);
+    }
+  };
+
+  const handleAddDueDate = async () => {
+    try {
+      await api.post(`/api/tareas/${task.id}/fechas`, { /* datos de la fecha */ });
+      onAddDueDate();
+    } catch (error) {
+      console.error('Error al añadir fecha:', error);
+    }
+  };
+
+  const handleAddAttachment = async () => {
+    try {
+      await api.post(`/api/tareas/${task.id}/adjuntos`, { /* datos del adjunto */ });
+      onAddAttachment();
+    } catch (error) {
+      console.error('Error al añadir adjunto:', error);
+    }
+  };
+
+  const handleAddCover = async () => {
+    try {
+      await api.post(`/api/tareas/${task.id}/portada`, { /* datos de la portada */ });
+      onAddCover();
+    } catch (error) {
+      console.error('Error al añadir portada:', error);
+    }
   };
 
   return (
@@ -42,12 +102,12 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
           />
         </div>
         <div className="task-modal-sidepanel">
-          <button onClick={onAddMember}><FontAwesomeIcon icon={faUserPlus} /> Miembros</button>
-          <button onClick={onAddLabel}><FontAwesomeIcon icon={faTags} /> Etiquetas</button>
-          <button onClick={onAddChecklist}><FontAwesomeIcon icon={faCheckSquare} /> Checklist</button>
-          <button onClick={onAddDueDate}><FontAwesomeIcon icon={faCalendarAlt} /> Fechas</button>
-          <button onClick={onAddAttachment}><FontAwesomeIcon icon={faFileUpload} /> Adjuntar</button>
-          <button onClick={onAddCover}><FontAwesomeIcon icon={faImage} /> Portada</button>
+          <button onClick={handleAddMember}><FontAwesomeIcon icon={faUserPlus} /> Miembros</button>
+          <button onClick={handleAddLabel}><FontAwesomeIcon icon={faTags} /> Etiquetas</button>
+          <button onClick={handleAddChecklist}><FontAwesomeIcon icon={faCheckSquare} /> Checklist</button>
+          <button onClick={handleAddDueDate}><FontAwesomeIcon icon={faCalendarAlt} /> Fechas</button>
+          <button onClick={handleAddAttachment}><FontAwesomeIcon icon={faFileUpload} /> Adjuntar</button>
+          <button onClick={handleAddCover}><FontAwesomeIcon icon={faImage} /> Portada</button>
         </div>
         <div className="task-modal-footer">
           <button onClick={handleSave} className="task-modal-save-button">Guardar</button>
@@ -62,6 +122,7 @@ TaskModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   task: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     title: PropTypes.string,
     content: PropTypes.string,
   }),

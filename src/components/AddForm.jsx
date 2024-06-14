@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Input } from '../styles/Input.styles';
 import IconButton from './IconButton';
+import api from '../api'; 
 
 const AddButtonForm = styled.form`
   max-width: ${props => props.maxWidth};
@@ -18,11 +19,16 @@ const AddForm = props => {
   const [focus, setFocus] = useState(false);
   const ref = useRef(null);
 
-  const onSubmit = e => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (value) {
-      props.onConfirm(value);
+      try {
+        const response = await api.post('/api/tareas', { title: value });
+        props.onConfirm(response.data); 
+      } catch (error) {
+        console.error('Error al confirmar:', error);
+      }
     }
     setValue('');
     setFocus(false);
@@ -52,8 +58,8 @@ const AddForm = props => {
           value={value}
           onChange={e => setValue(e.target.value)}
           placeholder={focus || value ? props.focusPlaceholder : props.placeholder}
-          $darkFont={props.darkFont} // Usar $ para propiedades transitorias
-          $gray={props.gray} // Usar $ para propiedades transitorias
+          $darkFont={props.darkFont} 
+          $gray={props.gray} 
         />
         {value && (
           <IconButton.ButtonContainer $top="4px"> {/* Usar $ para propiedades transitorias */}
