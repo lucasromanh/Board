@@ -20,3 +20,6 @@ const App = () => {
 };
 
 export default App;
+
+
+// agregar rutas de conecciones con el fetch del backend
