@@ -1,35 +1,41 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
 
+// Estado inicial para el tablero
 const initialBoardState = {
   columns: [
     {
       id: 'column-1',
       title: 'Para Hacer',
       cards: [
-        { id: 'card-1', title: 'Tarea 1', content: 'Contenido para Tarea 1' },
-        { id: 'card-2', title: 'Tarea 2', content: 'Contenido para Tarea 2' },
+        { id: 'card-1', title: 'Tarea 1', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 1","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
+        { id: 'card-2', title: 'Tarea 2', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 2","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
       ],
     },
     {
       id: 'column-2',
       title: 'En Proceso',
       cards: [
-        { id: 'card-3', title: 'Tarea 3', content: 'Contenido para Tarea 3' },
-        { id: 'card-4', title: 'Tarea 4', content: 'Contenido para Tarea 4' },
+        { id: 'card-3', title: 'Tarea 3', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 3","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
+        { id: 'card-4', title: 'Tarea 4', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 4","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
       ],
     },
     {
       id: 'column-3',
       title: 'Finalizada',
       cards: [
-        { id: 'card-5', title: 'Tarea 5', content: 'Contenido para Tarea 5' },
-        { id: 'card-6', title: 'Tarea 6', content: 'Contenido para Tarea 6' },
+        { id: 'card-5', title: 'Tarea 5', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 5","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
+        { id: 'card-6', title: 'Tarea 6', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 6","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
       ],
     },
   ],
 };
 
 const initialSearchState = '';
+
+// Estado inicial para la autenticación
+const initialAuthState = {
+  isAuthenticated: true,
+};
 
 const boardSlice = createSlice({
   name: 'board',
@@ -52,7 +58,7 @@ const boardSlice = createSlice({
     addCard: (state, action) => {
       const { columnId, card } = action.payload;
       const column = state.columns.find(column => column.id === columnId);
-      column.cards.push(card);
+      column.cards.push({ ...card, content: JSON.stringify({ text: card.content }) });
     },
     removeCard: (state, action) => {
       const { columnId, cardId } = action.payload;
@@ -67,7 +73,11 @@ const boardSlice = createSlice({
       const column = state.columns.find(column => column.id === columnId);
       const cardIndex = column.cards.findIndex(card => card.id === cardId);
       if (cardIndex !== -1) {
-        column.cards[cardIndex] = { ...column.cards[cardIndex], ...updatedCard };
+        column.cards[cardIndex] = {
+          ...column.cards[cardIndex],
+          ...updatedCard,
+          content: JSON.stringify({ text: updatedCard.content }),
+        };
       }
     },
     addColumn: (state, action) => {
@@ -94,10 +104,21 @@ const searchSlice = createSlice({
   },
 });
 
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: initialAuthState,
+  reducers: {
+    logout: (state) => {
+      state.isAuthenticated = false;
+    },
+  },
+});
+
 const store = configureStore({
   reducer: {
     board: boardSlice.reducer,
     search: searchSlice.reducer,
+    auth: authSlice.reducer,
   },
 });
 
@@ -111,5 +132,6 @@ export const {
 } = boardSlice.actions;
 
 export const { setSearchText } = searchSlice.actions;
+export const { logout } = authSlice.actions;
 
 export default store;

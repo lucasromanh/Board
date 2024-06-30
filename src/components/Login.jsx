@@ -4,15 +4,19 @@ import useAuth from '../context/useAuth';
 import 'bulma/css/bulma.min.css';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [CorreoElectronico, setCorreoElectronico] = useState('');
+  const [Password, setPassword] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login({ username, password });
-    navigate('/board');
+    try {
+      await login({ CorreoElectronico, Password });
+      navigate('/board');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -21,24 +25,26 @@ const Login = () => {
         <div className="column is-half">
           <form onSubmit={handleSubmit}>
             <div className="field">
-              <label className="label">Username</label>
+              <label className="label" htmlFor="CorreoElectronico">Correo Electrónico</label>
               <div className="control">
                 <input
                   className="input"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  id="CorreoElectronico"
+                  value={CorreoElectronico}
+                  onChange={(e) => setCorreoElectronico(e.target.value)}
                   required
                 />
               </div>
             </div>
             <div className="field">
-              <label className="label">Password</label>
+              <label className="label" htmlFor="Password">Contraseña</label>
               <div className="control">
                 <input
                   className="input"
                   type="password"
-                  value={password}
+                  id="Password"
+                  value={Password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
@@ -47,7 +53,7 @@ const Login = () => {
             <div className="field">
               <div className="control">
                 <button className="button is-primary" type="submit">
-                  Login
+                  Iniciar Sesión
                 </button>
               </div>
             </div>

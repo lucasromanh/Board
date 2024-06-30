@@ -6,6 +6,8 @@ import './Board.css';
 import { Link } from 'react-router-dom';
 import useAuth from '../context/useAuth';
 import api from '../api';
+import Logout from './Logout';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Board = () => {
   const columns = useSelector(state => state.board.columns);
@@ -65,11 +67,11 @@ const Board = () => {
     <div className="board-container">
       <aside className="side-panel">
         <div className="side-panel-content">
-          <h2>Opciones</h2>
-          <button>Agregar TABLERO</button>
-          <button>Agregar USUARIO a tablero</button>
-          <button>Ver USUARIOS CONECTADOS</button>
-          {user && <Link to={`/profile/${user.id}`}>Perfil de Usuario</Link>}
+          <button title="Agregar TABLERO"><i className="fas fa-plus"></i></button>
+          <button title="Agregar USUARIO a tablero"><i className="fas fa-user-plus"></i></button>
+          <button title="Ver USUARIOS CONECTADOS"><i className="fas fa-users"></i></button>
+          <Logout />
+          {user && <Link to={`/profile/${user.id}`}><i className="fas fa-user"></i></Link>}
         </div>
       </aside>
       <div className="main-content">

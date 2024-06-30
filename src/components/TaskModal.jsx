@@ -1,36 +1,78 @@
 import PropTypes from 'prop-types';
 import Modal from 'react-modal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faTags, faCheckSquare, faCalendarAlt, faFileUpload, faImage } from '@fortawesome/free-solid-svg-icons';
-import './TaskModal.css';
 import { useState, useEffect } from 'react';
-import api from '../api'; 
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import './TaskModal.css';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
 
-const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLabel, onAddChecklist, onAddDueDate, onAddAttachment, onAddCover }) => {
+Modal.setAppElement('#root');
+
+const TaskModal = ({
+  isOpen,
+  onRequestClose,
+  task,
+  onSave,
+  onAddMember,
+  onAddLabel,
+  onAddChecklist,
+  onAddDueDate,
+  onAddAttachment,
+  onAddCover,
+}) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title);
-      setContent(task.content);
+      setTitle(task.title || '');
+
+      try {
+        const contentBlock = htmlToDraft(task.content || '');
+        if (contentBlock) {
+          const contentState = convertFromRaw({
+            entityMap: {},
+            blocks: contentBlock,
+          });
+          setContent(EditorState.createWithContent(contentState));
+        } else {
+          setContent(EditorState.createEmpty());
+        }
+      } catch (e) {
+        console.error('Error parsing task content:', e);
+        setContent(EditorState.createEmpty());
+      }
     }
   }, [task]);
 
-  const handleSave = async () => {
-    try {
-      const response = await api.put(`/api/tareas/${task.id}`, { title, content });
-      onSave(response.data);
-      onRequestClose();
-    } catch (error) {
-      console.error('Error al guardar tarea:', error);
-    }
+  const handleSave = () => {
+    const rawContentState = convertToRaw(content.getCurrentContent());
+    const htmlContent = draftToHtml(rawContentState);
+    const updatedTask = { ...task, title, content: htmlContent };
+    onSave(updatedTask);
+    onRequestClose();
   };
 
   const handleAddMember = async () => {
     try {
-      await api.post(`/api/tareas/${task.id}/miembros`, { /* datos del miembro */ });
-      onAddMember();
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tareas/${task.id}/miembros`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onAddMember(data);
+      } else {
+        console.error('Error al añadir miembro:', response.statusText);
+      }
     } catch (error) {
       console.error('Error al añadir miembro:', error);
     }
@@ -38,8 +80,22 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
 
   const handleAddLabel = async () => {
     try {
-      await api.post(`/api/tareas/${task.id}/etiquetas`, { /* datos de la etiqueta */ });
-      onAddLabel();
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tareas/${task.id}/etiquetas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onAddLabel(data);
+      } else {
+        console.error('Error al añadir etiqueta:', response.statusText);
+      }
     } catch (error) {
       console.error('Error al añadir etiqueta:', error);
     }
@@ -47,8 +103,22 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
 
   const handleAddChecklist = async () => {
     try {
-      await api.post(`/api/tareas/${task.id}/checklist`, { /* datos del checklist */ });
-      onAddChecklist();
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tareas/${task.id}/checklist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onAddChecklist(data);
+      } else {
+        console.error('Error al añadir checklist:', response.statusText);
+      }
     } catch (error) {
       console.error('Error al añadir checklist:', error);
     }
@@ -56,8 +126,22 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
 
   const handleAddDueDate = async () => {
     try {
-      await api.post(`/api/tareas/${task.id}/fechas`, { /* datos de la fecha */ });
-      onAddDueDate();
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tareas/${task.id}/fechas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onAddDueDate(data);
+      } else {
+        console.error('Error al añadir fecha:', response.statusText);
+      }
     } catch (error) {
       console.error('Error al añadir fecha:', error);
     }
@@ -65,8 +149,22 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
 
   const handleAddAttachment = async () => {
     try {
-      await api.post(`/api/tareas/${task.id}/adjuntos`, { /* datos del adjunto */ });
-      onAddAttachment();
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tareas/${task.id}/adjuntos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onAddAttachment(data);
+      } else {
+        console.error('Error al añadir adjunto:', response.statusText);
+      }
     } catch (error) {
       console.error('Error al añadir adjunto:', error);
     }
@@ -74,15 +172,34 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
 
   const handleAddCover = async () => {
     try {
-      await api.post(`/api/tareas/${task.id}/portada`, { /* datos de la portada */ });
-      onAddCover();
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tareas/${task.id}/portada`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onAddCover(data);
+      } else {
+        console.error('Error al añadir portada:', response.statusText);
+      }
     } catch (error) {
       console.error('Error al añadir portada:', error);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onRequestClose} className="task-modal" overlayClassName="task-modal-overlay">
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      className="task-modal"
+      overlayClassName="task-modal-overlay"
+    >
       <div className="task-modal-content">
         <div className="task-modal-header">
           <input
@@ -94,20 +211,21 @@ const TaskModal = ({ isOpen, onRequestClose, task, onSave, onAddMember, onAddLab
           />
         </div>
         <div className="task-modal-body">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="task-modal-description"
-            placeholder="Contenido"
-          />
-        </div>
-        <div className="task-modal-sidepanel">
-          <button onClick={handleAddMember}><FontAwesomeIcon icon={faUserPlus} /> Miembros</button>
-          <button onClick={handleAddLabel}><FontAwesomeIcon icon={faTags} /> Etiquetas</button>
-          <button onClick={handleAddChecklist}><FontAwesomeIcon icon={faCheckSquare} /> Checklist</button>
-          <button onClick={handleAddDueDate}><FontAwesomeIcon icon={faCalendarAlt} /> Fechas</button>
-          <button onClick={handleAddAttachment}><FontAwesomeIcon icon={faFileUpload} /> Adjuntar</button>
-          <button onClick={handleAddCover}><FontAwesomeIcon icon={faImage} /> Portada</button>
+          <div className="task-modal-description">
+            <ReactQuill
+              value={content}
+              onChange={setContent}
+              placeholder="Contenido"
+            />
+          </div>
+          <div className="task-modal-sidepanel">
+            <button onClick={handleAddMember}>Miembros</button>
+            <button onClick={handleAddLabel}>Etiquetas</button>
+            <button onClick={handleAddChecklist}>Checklist</button>
+            <button onClick={handleAddDueDate}>Fechas</button>
+            <button onClick={handleAddAttachment}>Adjuntar</button>
+            <button onClick={handleAddCover}>Portada</button>
+          </div>
         </div>
         <div className="task-modal-footer">
           <button onClick={handleSave} className="task-modal-save-button">Guardar</button>

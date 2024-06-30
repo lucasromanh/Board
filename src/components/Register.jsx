@@ -5,16 +5,13 @@ import 'bulma/css/bulma.min.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    username: '',
-    email: '',
-    phone: '',
-    birthDate: '',
-    city: '',
-    password: '',
+    Nombre: '',
+    Apellido: '',
+    CorreoElectronico: '',
+    Password: '',
   });
 
+  const [success, setSuccess] = useState(false);  // Nuevo estado para la notificación
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -26,7 +23,11 @@ const Register = () => {
     e.preventDefault();
     try {
       await register(formData);
-      navigate('/login');
+      setSuccess(true); 
+      setTimeout(() => {
+        setSuccess(false);  
+        navigate('/board');  
+      }, 3000);
     } catch (error) {
       console.error(error);
     }
@@ -36,65 +37,72 @@ const Register = () => {
     <div className="container">
       <div className="columns is-centered">
         <div className="column is-half">
+          {success && (
+            <div className="notification is-success">
+              Usuario creado con éxito
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="box">
             <h1 className="title">Registro</h1>
             <div className="field">
-              <label className="label" htmlFor="firstName">Nombre</label>
+              <label className="label" htmlFor="Nombre">Nombre</label>
               <div className="control">
-                <input className="input" type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                <input
+                  className="input"
+                  type="text"
+                  id="Nombre"
+                  name="Nombre"
+                  value={formData.Nombre}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
             <div className="field">
-              <label className="label" htmlFor="lastName">Apellido</label>
+              <label className="label" htmlFor="Apellido">Apellido</label>
               <div className="control">
-                <input className="input" type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                <input
+                  className="input"
+                  type="text"
+                  id="Apellido"
+                  name="Apellido"
+                  value={formData.Apellido}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
             <div className="field">
-              <label className="label" htmlFor="username">Nombre de usuario</label>
+              <label className="label" htmlFor="CorreoElectronico">Correo Electrónico</label>
               <div className="control">
-                <input className="input" type="text" id="username" name="username" value={formData.username} onChange={handleChange} required />
+                <input
+                  className="input"
+                  type="email"
+                  id="CorreoElectronico"
+                  name="CorreoElectronico"
+                  value={formData.CorreoElectronico}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
             <div className="field">
-              <label className="label" htmlFor="email">Correo Electrónico</label>
+              <label className="label" htmlFor="Password">Contraseña</label>
               <div className="control">
-                <input className="input" type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
-              </div>
-            </div>
-            <div className="field">
-              <label className="label" htmlFor="phone">Teléfono</label>
-              <div className="control">
-                <input className="input" type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} required />
-              </div>
-            </div>
-            <div className="field">
-              <label className="label" htmlFor="birthDate">Fecha de Nacimiento</label>
-              <div className="control">
-                <input className="input" type="date" id="birthDate" name="birthDate" value={formData.birthDate} onChange={handleChange} required />
-              </div>
-            </div>
-            <div className="field">
-              <label className="label" htmlFor="city">Ciudad</label>
-              <div className="control">
-                <input className="input" type="text" id="city" name="city" value={formData.city} onChange={handleChange} required />
-              </div>
-            </div>
-            <div className="field">
-              <label className="label" htmlFor="password">Contraseña</label>
-              <div className="control">
-                <input className="input" type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
+                <input
+                  className="input"
+                  type="password"
+                  id="Password"
+                  name="Password"
+                  value={formData.Password}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
             <div className="field is-grouped">
               <div className="control">
                 <button className="button is-link">Registrarse</button>
-              </div>
-            </div>
-            <div className="field">
-              <div className="buttons">
-                <button className="button is-link is-light">Registrar con Google</button>
-                <button className="button is-link is-light">Registrar con Facebook</button>
               </div>
             </div>
           </form>
