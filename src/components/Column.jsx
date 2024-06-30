@@ -10,22 +10,88 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
-  const handleAddCard = () => {
+  const handleAddCard = async () => {
     if (newCardTitle && newCardContent) {
-      onAddCard(column.id, { title: newCardTitle, content: newCardContent });
-      setNewCardTitle('');
-      setNewCardContent('');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found in localStorage');
+        return;
+      }
+
+      const cardData = { 
+        Titulo: newCardTitle, 
+        Descripcion: newCardContent, 
+        ProyectoID: parseInt(column.id) 
+      };
+
+      console.log('Card data being sent:', cardData);
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/tareas`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(cardData),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          console.log('New card added:', data);
+          onAddCard(column.id, data);
+          setNewCardTitle('');
+          setNewCardContent('');
+        } else {
+          console.error('Error al añadir tarjeta:', response.statusText, data);
+        }
+      } catch (error) {
+        console.error('Error en la solicitud:', error);
+      }
     }
   };
 
   const handleEditCard = (task) => {
+    console.log('Selected Task for Edit:', task);
     setSelectedTask(task);
     setIsModalOpen(true);
   };
 
-  const handleSaveCard = (updatedTask) => {
-    onEditCard(column.id, selectedTask.id, updatedTask);
-    setIsModalOpen(false);
+  const handleSaveCard = async (updatedTask) => {
+    console.log('Task to save:', updatedTask);
+    if (!updatedTask.TareaID) {
+      console.error('TareaID is undefined');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+    console.log('Token:', token);
+    console.log('Updated Task:', updatedTask);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/tareas/${updatedTask.TareaID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedTask),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        onEditCard(column.id, updatedTask.TareaID, data);
+        setIsModalOpen(false);
+      } else {
+        console.error('Failed to save the task:', response.statusText, data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
   };
 
   const handleCloseModal = () => {
@@ -33,9 +99,189 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     setIsModalOpen(false);
   };
 
+  const handleAddMember = async (taskId) => {
+    if (!taskId) {
+      console.error('taskId is undefined');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/miembros`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ UsuarioID: 1 }), // Asegúrate de que UsuarioID está definido
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Error al añadir miembro:', response.statusText, data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
+  };
+
+  const handleAddLabel = async (taskId) => {
+    if (!taskId) {
+      console.error('taskId is undefined');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/etiquetas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ Nombre: 'Etiqueta 1' }), // Asegúrate de que Nombre está definido
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Error al añadir etiqueta:', response.statusText, data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
+  };
+
+  const handleAddChecklist = async (taskId) => {
+    if (!taskId) {
+      console.error('taskId is undefined');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/checklist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ Titulo: 'Checklist 1' }), // Asegúrate de que Titulo está definido
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Error al añadir checklist:', response.statusText, data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
+  };
+
+  const handleAddDueDate = async (taskId) => {
+    if (!taskId) {
+      console.error('taskId is undefined');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/fechas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ FechaVencimiento: '2024-12-31' }), // Asegúrate de que FechaVencimiento está definido
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Error al añadir fecha de vencimiento:', response.statusText, data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
+  };
+
+  const handleAddAttachment = async (taskId) => {
+    if (!taskId) {
+      console.error('taskId is undefined');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/adjuntos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ Archivo: 'Archivo.pdf' }), // Asegúrate de que Archivo está definido
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Error al añadir adjunto:', response.statusText, data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
+  };
+
+  const handleAddCover = async (taskId) => {
+    if (!taskId) {
+      console.error('taskId is undefined');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found in localStorage');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/portada`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ PortadaID: 1 }), // Asegúrate de que PortadaID está definido
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Error al añadir portada:', response.statusText, data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
+  };
+
   const filteredCards = column.cards.filter(card =>
     card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    JSON.parse(card.content).blocks.some(block => block.text.toLowerCase().includes(searchTerm.toLowerCase()))
+    card.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -65,7 +311,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
                     {...provided.dragHandleProps}
                   >
                     <div className="task-card-title">{card.title}</div>
-                    <div className="task-card-content">{JSON.parse(card.content).blocks[0].text}</div>
+                    <div className="task-card-content" dangerouslySetInnerHTML={{ __html: card.content }} />
                     <div className="task-card-actions">
                       <button onClick={() => handleEditCard(card)}>✏️</button>
                       <button onClick={() => onDeleteCard(column.id, card.id)}>🗑️</button>
@@ -97,12 +343,12 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             onRequestClose={handleCloseModal}
             task={selectedTask}
             onSave={handleSaveCard}
-            onAddMember={() => {}} // Función vacía por ahora
-            onAddLabel={() => {}} // Función vacía por ahora
-            onAddChecklist={() => {}} // Función vacía por ahora
-            onAddDueDate={() => {}} // Función vacía por ahora
-            onAddAttachment={() => {}} // Función vacía por ahora
-            onAddCover={() => {}} // Función vacía por ahora
+            onAddMember={handleAddMember}
+            onAddLabel={handleAddLabel}
+            onAddChecklist={handleAddChecklist}
+            onAddDueDate={handleAddDueDate}
+            onAddAttachment={handleAddAttachment}
+            onAddCover={handleAddCover}
           />
         </div>
       )}

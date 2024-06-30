@@ -7,28 +7,29 @@ const initialBoardState = {
       id: 'column-1',
       title: 'Para Hacer',
       cards: [
-        { id: 'card-1', title: 'Tarea 1', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 1","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
-        { id: 'card-2', title: 'Tarea 2', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 2","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
+        { id: 'card-1', title: 'Tarea 1', content: '<p>Contenido para Tarea 1</p>' },
+        { id: 'card-2', title: 'Tarea 2', content: '<p>Contenido para Tarea 2</p>' },
       ],
     },
     {
       id: 'column-2',
       title: 'En Proceso',
       cards: [
-        { id: 'card-3', title: 'Tarea 3', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 3","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
-        { id: 'card-4', title: 'Tarea 4', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 4","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
+        { id: 'card-3', title: 'Tarea 3', content: '<p>Contenido para Tarea 3</p>' },
+        { id: 'card-4', title: 'Tarea 4', content: '<p>Contenido para Tarea 4</p>' },
       ],
     },
     {
       id: 'column-3',
       title: 'Finalizada',
       cards: [
-        { id: 'card-5', title: 'Tarea 5', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 5","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
-        { id: 'card-6', title: 'Tarea 6', content: '{"blocks":[{"key":"5g8yu","text":"Contenido para Tarea 6","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}' },
+        { id: 'card-5', title: 'Tarea 5', content: '<p>Contenido para Tarea 5</p>' },
+        { id: 'card-6', title: 'Tarea 6', content: '<p>Contenido para Tarea 6</p>' },
       ],
     },
   ],
 };
+
 
 const initialSearchState = '';
 
@@ -58,7 +59,7 @@ const boardSlice = createSlice({
     addCard: (state, action) => {
       const { columnId, card } = action.payload;
       const column = state.columns.find(column => column.id === columnId);
-      column.cards.push({ ...card, content: JSON.stringify({ text: card.content }) });
+      column.cards.push(card); // No conversion a JSON aquí
     },
     removeCard: (state, action) => {
       const { columnId, cardId } = action.payload;
@@ -76,7 +77,6 @@ const boardSlice = createSlice({
         column.cards[cardIndex] = {
           ...column.cards[cardIndex],
           ...updatedCard,
-          content: JSON.stringify({ text: updatedCard.content }),
         };
       }
     },
