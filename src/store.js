@@ -7,29 +7,28 @@ const initialBoardState = {
       id: 'column-1',
       title: 'Para Hacer',
       cards: [
-        { id: 'card-1', title: 'Tarea 1', content: '<p>Contenido para Tarea 1</p>' },
-        { id: 'card-2', title: 'Tarea 2', content: '<p>Contenido para Tarea 2</p>' },
+        { id: 'card-1', TareaID: 'card-1', title: 'Tarea 1', content: '<p>Contenido para Tarea 1</p>' },
+        { id: 'card-2', TareaID: 'card-2', title: 'Tarea 2', content: '<p>Contenido para Tarea 2</p>' },
       ],
     },
     {
       id: 'column-2',
       title: 'En Proceso',
       cards: [
-        { id: 'card-3', title: 'Tarea 3', content: '<p>Contenido para Tarea 3</p>' },
-        { id: 'card-4', title: 'Tarea 4', content: '<p>Contenido para Tarea 4</p>' },
+        { id: 'card-3', TareaID: 'card-3', title: 'Tarea 3', content: '<p>Contenido para Tarea 3</p>' },
+        { id: 'card-4', TareaID: 'card-4', title: 'Tarea 4', content: '<p>Contenido para Tarea 4</p>' },
       ],
     },
     {
       id: 'column-3',
       title: 'Finalizada',
       cards: [
-        { id: 'card-5', title: 'Tarea 5', content: '<p>Contenido para Tarea 5</p>' },
-        { id: 'card-6', title: 'Tarea 6', content: '<p>Contenido para Tarea 6</p>' },
+        { id: 'card-5', TareaID: 'card-5', title: 'Tarea 5', content: '<p>Contenido para Tarea 5</p>' },
+        { id: 'card-6', TareaID: 'card-6', title: 'Tarea 6', content: '<p>Contenido para Tarea 6</p>' },
       ],
     },
   ],
 };
-
 
 const initialSearchState = '';
 

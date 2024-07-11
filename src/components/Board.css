@@ -12,12 +12,18 @@
   flex-direction: column;
   align-items: center;
   padding-top: 10px;
+  transition: width 0.3s;
+}
+
+.side-panel.expanded {
+  width: 250px;
 }
 
 .side-panel-content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .side-panel-content h2 {
@@ -31,6 +37,8 @@
   cursor: pointer;
   margin: 20px 0;
   font-size: 18px;
+  display: flex;
+  align-items: center;
 }
 
 .side-panel-content button:hover, .side-panel-content a:hover {
@@ -99,9 +107,28 @@
   background-color: #005f8b;
 }
 
+.toggle-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.toggle-button:hover {
+  color: #61dafb;
+}
+
 @media (max-width: 768px) {
   .side-panel {
     width: 50px;
+  }
+
+  .side-panel.expanded {
+    width: 150px;
   }
 
   .side-panel-content button, .side-panel-content a {

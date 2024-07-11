@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Link } from 'react-router-dom';
 import { HeaderContainer, HeaderLogoContainer, HeaderLogo, HeaderInputWrapper, HeaderIconsContainer } from '../styles/Header.styles';
-import logo from '../assets/trello-logo.png';
+import logo from '../assets/logo.svg';
 import SearchInput from './SearchInput';
 import { undoAction, redoAction } from '../actions/undoActions';
 import { setSearch } from '../actions/searchActions';

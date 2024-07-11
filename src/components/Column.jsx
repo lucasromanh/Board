@@ -1,10 +1,13 @@
+// Column.jsx
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskModal from './TaskModal';
 import './Column.css';
+import { useAuth } from '../context/AuthContext';
 
 const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard, onDeleteCard }) => {
+  const { user, refreshToken } = useAuth();
   const [newCardTitle, setNewCardTitle] = useState('');
   const [newCardContent, setNewCardContent] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,7 +24,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
       const cardData = { 
         Titulo: newCardTitle, 
         Descripcion: newCardContent, 
-        ProyectoID: parseInt(column.id) 
+        ProyectoID: user?.defaultBoardId 
       };
 
       console.log('Card data being sent:', cardData);
@@ -69,22 +72,43 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
       console.error('No token found in localStorage');
       return;
     }
-    console.log('Token:', token);
-    console.log('Updated Task:', updatedTask);
+
+    if (!user) {
+      console.error('User is null');
+      return;
+    }
+
+    const taskToUpdate = {
+      ...updatedTask,
+      ProyectoID: user.defaultBoardId,
+      FechaVencimiento: updatedTask.FechaVencimiento || null
+    };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/tareas/${updatedTask.TareaID}`, {
+      let response = await fetch(`http://localhost:5000/api/tareas/${taskToUpdate.TareaID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(updatedTask),
+        body: JSON.stringify(taskToUpdate),
       });
+
+      if (response.status === 403) {
+        const newToken = await refreshToken();
+        response = await fetch(`http://localhost:5000/api/tareas/${taskToUpdate.TareaID}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${newToken}`,
+          },
+          body: JSON.stringify(taskToUpdate),
+        });
+      }
 
       const data = await response.json();
       if (response.ok) {
-        onEditCard(column.id, updatedTask.TareaID, data);
+        onEditCard(column.id, taskToUpdate.TareaID, data);
         setIsModalOpen(false);
       } else {
         console.error('Failed to save the task:', response.statusText, data);
@@ -99,7 +123,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     setIsModalOpen(false);
   };
 
-  const handleAddMember = async (taskId) => {
+  const handleAddMember = async (taskId, userId) => {
     if (!taskId) {
       console.error('taskId is undefined');
       return;
@@ -117,7 +141,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ UsuarioID: 1 }), // Asegúrate de que UsuarioID está definido
+        body: JSON.stringify({ UsuarioID: userId }),
       });
 
       const data = await response.json();
@@ -129,7 +153,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     }
   };
 
-  const handleAddLabel = async (taskId) => {
+  const handleAddLabel = async (taskId, labelName) => {
     if (!taskId) {
       console.error('taskId is undefined');
       return;
@@ -147,7 +171,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ Nombre: 'Etiqueta 1' }), // Asegúrate de que Nombre está definido
+        body: JSON.stringify({ Nombre: labelName }),
       });
 
       const data = await response.json();
@@ -159,7 +183,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     }
   };
 
-  const handleAddChecklist = async (taskId) => {
+  const handleAddChecklist = async (taskId, checklistTitle) => {
     if (!taskId) {
       console.error('taskId is undefined');
       return;
@@ -177,7 +201,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ Titulo: 'Checklist 1' }), // Asegúrate de que Titulo está definido
+        body: JSON.stringify({ Titulo: checklistTitle }),
       });
 
       const data = await response.json();
@@ -189,7 +213,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     }
   };
 
-  const handleAddDueDate = async (taskId) => {
+  const handleAddDueDate = async (taskId, dueDate) => {
     if (!taskId) {
       console.error('taskId is undefined');
       return;
@@ -207,7 +231,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ FechaVencimiento: '2024-12-31' }), // Asegúrate de que FechaVencimiento está definido
+        body: JSON.stringify({ FechaVencimiento: dueDate }),
       });
 
       const data = await response.json();
@@ -219,7 +243,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     }
   };
 
-  const handleAddAttachment = async (taskId) => {
+  const handleAddAttachment = async (taskId, file) => {
     if (!taskId) {
       console.error('taskId is undefined');
       return;
@@ -231,13 +255,15 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
       return;
     }
     try {
+      const formData = new FormData();
+      formData.append('Archivo', file);
+
       const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/adjuntos`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ Archivo: 'Archivo.pdf' }), // Asegúrate de que Archivo está definido
+        body: formData,
       });
 
       const data = await response.json();
@@ -249,7 +275,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     }
   };
 
-  const handleAddCover = async (taskId) => {
+  const handleAddCover = async (taskId, coverId) => {
     if (!taskId) {
       console.error('taskId is undefined');
       return;
@@ -267,7 +293,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ PortadaID: 1 }), // Asegúrate de que PortadaID está definido
+        body: JSON.stringify({ PortadaID: coverId }),
       });
 
       const data = await response.json();
@@ -349,6 +375,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             onAddDueDate={handleAddDueDate}
             onAddAttachment={handleAddAttachment}
             onAddCover={handleAddCover}
+            columnId={column.id}  // No se si tendria que pasar el id aca??
           />
         </div>
       )}

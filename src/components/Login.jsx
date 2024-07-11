@@ -1,63 +1,74 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useAuth from '../context/useAuth';
-import 'bulma/css/bulma.min.css';
+import { useState, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar'; 
+import 'bulma/css/bulma.min.css'; 
+import { useNavigate } from 'react-router-dom'; 
 
 const Login = () => {
-  const [CorreoElectronico, setCorreoElectronico] = useState('');
-  const [Password, setPassword] = useState('');
-  const { login } = useAuth();
+  const [formData, setFormData] = useState({ CorreoElectronico: '', Password: '' });
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login({ CorreoElectronico, Password });
+      const user = await login(formData);
+      console.log('User data after login:', user);  // Verifica que user tiene la estructura correcta
+      // Redirigir siempre a /board sin importar el defaultBoardId
       navigate('/board');
     } catch (error) {
-      console.error(error);
+      console.error('Error during login:', error.message);
+      alert('Login failed: ' + error.message);
     }
   };
 
   return (
-    <div className="container">
-      <div className="columns is-centered">
-        <div className="column is-half">
-          <form onSubmit={handleSubmit}>
-            <div className="field">
-              <label className="label" htmlFor="CorreoElectronico">Correo Electrónico</label>
-              <div className="control">
-                <input
-                  className="input"
-                  type="email"
-                  id="CorreoElectronico"
-                  value={CorreoElectronico}
-                  onChange={(e) => setCorreoElectronico(e.target.value)}
-                  required
-                />
+    <div>
+      <Navbar /> 
+      <div className="container">
+        <div className="columns is-centered">
+          <div className="column is-half">
+            <form onSubmit={handleSubmit} className="box">
+              <div className="field">
+                <label className="label">Correo Electrónico</label>
+                <div className="control">
+                  <input
+                    className="input"
+                    type="email"
+                    name="CorreoElectronico"
+                    value={formData.CorreoElectronico}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div className="field">
-              <label className="label" htmlFor="Password">Contraseña</label>
-              <div className="control">
-                <input
-                  className="input"
-                  type="password"
-                  id="Password"
-                  value={Password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+              <div className="field">
+                <label className="label">Contraseña</label>
+                <div className="control">
+                  <input
+                    className="input"
+                    type="password"
+                    name="Password"
+                    value={formData.Password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div className="field">
-              <div className="control">
-                <button className="button is-primary" type="submit">
-                  Iniciar Sesión
-                </button>
+              <div className="field">
+                <div className="control">
+                  <button type="submit" className="button is-primary">Login</button>
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>

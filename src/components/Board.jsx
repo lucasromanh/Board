@@ -32,18 +32,20 @@ const Board = () => {
   };
 
   const handleAddCard = async (columnId, { title, content }) => {
-    const newCard = {
-      id: `card-${Date.now()}`,
-      title,
-      content,
-    };
     try {
-      await api.post('/api/tareas', { columnId, title, content });
+      const response = await api.post('/api/tareas', { columnId, title, content });
+      const newCard = {
+        id: response.data.id,
+        TareaID: response.data.id, 
+        title,
+        content
+      };
       dispatch(addCard({ columnId, card: newCard }));
     } catch (error) {
       console.error('Error al agregar tarjeta:', error);
     }
   };
+  
 
   const handleEditCard = async (columnId, cardId, updatedCard) => {
     try {

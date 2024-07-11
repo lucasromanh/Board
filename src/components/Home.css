@@ -2,27 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
-
-.navbar {
-  background-color: #091e42;
-  padding: 1rem;
-}
-
-.navbar-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.navbar-logo img {
-  height: 40px;
-}
-
-.navbar-links a {
-  color: white;
-  margin-left: 1rem;
-  text-decoration: none;
+  background-color: #1d46b696;
+  font-family: Arial, sans-serif;
 }
 
 .main-content {
@@ -30,69 +11,67 @@
 }
 
 .banner-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  background-color: #14121296;
+  color: rgb(194, 213, 224);
   padding: 2rem 0;
 }
 
-.banner-text h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+.features-section, .cases-section {
+  background-color: rgba(27, 28, 29, 0.575);
+  padding: 2rem 0;
 }
 
-.banner-text p {
-  font-size: 1.25rem;
+.columns.is-variable {
+  --column-gap: 2rem;
+}
+
+.feature, .case {
+  display: flex;
+  align-items: center;
   margin-bottom: 2rem;
+  text-align: center;
 }
 
-.hero-button {
-  padding: 0.5rem 1rem;
-  background-color: #0052cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  text-decoration: none;
-}
-
-.banner-image img {
+.feature img, .case img {
   max-width: 100%;
   height: auto;
-  margin-top: 2rem;
 }
 
-.features-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 0;
+.feature:nth-child(even) .image, .case:nth-child(even) .image {
+  order: 2;
 }
 
-.feature {
-  margin-bottom: 2rem;
+.feature:nth-child(even) .column.is-half, .case:nth-child(even) .column.is-half {
+  order: 1;
 }
 
 .cta-section {
   background-color: #091e42;
-  color: white;
-  text-align: center;
+  color: rgb(17, 100, 133);
   padding: 2rem 0;
 }
 
-.cta-form input {
-  padding: 0.5rem;
-  margin-right: 0.5rem;
+.cta-note a {
+  color: #4aeec5;
+  text-decoration: underline;
 }
 
-.cta-form button {
-  padding: 0.5rem 1rem;
-  background-color: #0052cc;
+.footer {
+  background-color: #1a1c1d;
   color: white;
-  border: none;
-  border-radius: 4px;
+  padding: 2rem 0;
 }
 
-.cta-note {
-  margin-top: 1rem;
+.footer .content {
+  text-align: center;
+}
+
+.footer .footer-nav a {
+  color: white;
+  margin: 0 1rem;
+  text-decoration: none;
+}
+
+.jinja  {
+  color: #1a43ccaf
 }
