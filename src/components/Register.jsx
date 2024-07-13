@@ -1,7 +1,7 @@
+import 'bulma/css/bulma.min.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../context/useAuth';
-import 'bulma/css/bulma.min.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
