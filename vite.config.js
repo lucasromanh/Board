@@ -6,6 +6,14 @@ export default defineConfig({
   plugins: [react(), polyfillNode()],
   define: {
     'global': {}
-  }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000', 
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });
-

@@ -42,7 +42,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
         });
 
         const data = response.data;
-        if (response.status === 200) {
+        if (response.status === 201) {  
           console.log('Nueva tarjeta añadida:', data);
           onAddCard(column.id, data);
           setNewCardTitle('');
@@ -61,7 +61,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
               },
             });
             const data = response.data;
-            if (response.status === 200) {
+            if (response.status === 201) { 
               console.log('Nueva tarjeta añadida después de refrescar el token:', data);
               onAddCard(column.id, data);
               setNewCardTitle('');
@@ -87,8 +87,8 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
 
   const handleSaveCard = async (updatedTask) => {
     console.log('Tarea a guardar:', updatedTask);
-    if (!updatedTask.TareaID) {
-      console.error('TareaID es undefined');
+    if (!updatedTask.id) {  
+      console.error('id es undefined');
       return;
     }
 
@@ -110,7 +110,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     };
 
     try {
-      let response = await api.put(`/tareas/${taskToUpdate.TareaID}`, taskToUpdate, {
+      let response = await api.put(`/tareas/${taskToUpdate.id}`, taskToUpdate, {  
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -118,7 +118,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
 
       const data = response.data;
       if (response.status === 200) {
-        onEditCard(column.id, taskToUpdate.TareaID, data);
+        onEditCard(column.id, taskToUpdate.id, data);  
         setIsModalOpen(false);
       } else {
         console.error('Error al guardar la tarea:', response.statusText, data);
@@ -128,14 +128,14 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
         console.log('Token expirado, intentando refrescar el token...');
         try {
           const newToken = await refreshToken();
-          const response = await api.put(`/tareas/${taskToUpdate.TareaID}`, taskToUpdate, {
+          const response = await api.put(`/tareas/${taskToUpdate.id}`, taskToUpdate, {  
             headers: {
               Authorization: `Bearer ${newToken}`,
             },
           });
           const data = response.data;
           if (response.status === 200) {
-            onEditCard(column.id, taskToUpdate.TareaID, data);
+            onEditCard(column.id, taskToUpdate.id, data);  
             setIsModalOpen(false);
           } else {
             console.error('Error al guardar la tarea después de refrescar el token:', response.statusText, data);
@@ -218,7 +218,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             onRequestClose={handleCloseModal}
             task={selectedTask}
             onSave={handleSaveCard}
-            columnId={column.id}  // Asegúrate de pasar el id de la columna
+            columnId={column.id} 
           />
         </div>
       )}

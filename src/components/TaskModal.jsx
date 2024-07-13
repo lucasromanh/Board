@@ -48,7 +48,7 @@ const TaskModal = ({
       ...task,
       Titulo: title,
       Descripcion: htmlContent,
-      TareaID: task.TareaID || task.id,
+      id: task.id,
       ProyectoID: task.ProyectoID || columnId,
       FechaVencimiento: dueDate ? dueDate.toISOString().split('T')[0] : null,
     };
@@ -113,7 +113,7 @@ const TaskModal = ({
                 className="task-modal-input"
               />
             )}
-            <button onClick={() => {setShowInput(showInput === 'member' ? '' : 'member'); if (showInput === 'member') onAddMember(task.TareaID || task.id, memberEmail);}}>Añadir Miembro</button>
+            <button onClick={() => {setShowInput(showInput === 'member' ? '' : 'member'); if (showInput === 'member') onAddMember(task.id, memberEmail);}}>Añadir Miembro</button>
             
             {showInput === 'label' && (
               <input
@@ -124,7 +124,7 @@ const TaskModal = ({
                 className="task-modal-input"
               />
             )}
-            <button onClick={() => {setShowInput(showInput === 'label' ? '' : 'label'); if (showInput === 'label') onAddLabel(task.TareaID || task.id, labelName);}}>Añadir Etiqueta</button>
+            <button onClick={() => {setShowInput(showInput === 'label' ? '' : 'label'); if (showInput === 'label') onAddLabel(task.id, labelName);}}>Añadir Etiqueta</button>
             
             {showInput === 'checklist' && (
               <input
@@ -135,7 +135,7 @@ const TaskModal = ({
                 className="task-modal-input"
               />
             )}
-            <button onClick={() => {setShowInput(showInput === 'checklist' ? '' : 'checklist'); if (showInput === 'checklist') onAddChecklist(task.TareaID || task.id, checklistTitle);}}>Añadir Checklist</button>
+            <button onClick={() => {setShowInput(showInput === 'checklist' ? '' : 'checklist'); if (showInput === 'checklist') onAddChecklist(task.id, checklistTitle);}}>Añadir Checklist</button>
             
             {showInput === 'dueDate' && (
               <DatePicker
@@ -145,7 +145,7 @@ const TaskModal = ({
                 className="task-modal-datepicker"
               />
             )}
-            <button onClick={() => {setShowInput(showInput === 'dueDate' ? '' : 'dueDate'); if (showInput === 'dueDate') onAddDueDate(task.TareaID || task.id, dueDate?.toISOString().split('T')[0]);}}>Añadir Fecha</button>
+            <button onClick={() => {setShowInput(showInput === 'dueDate' ? '' : 'dueDate'); if (showInput === 'dueDate') onAddDueDate(task.id, dueDate?.toISOString().split('T')[0]);}}>Añadir Fecha</button>
             
             {showInput === 'file' && (
               <input
@@ -154,7 +154,7 @@ const TaskModal = ({
                 className="task-modal-input"
               />
             )}
-            <button onClick={() => {setShowInput(showInput === 'file' ? '' : 'file'); if (showInput === 'file') onAddAttachment(task.TareaID || task.id, file);}}>Añadir Adjunto</button>
+            <button onClick={() => {setShowInput(showInput === 'file' ? '' : 'file'); if (showInput === 'file') onAddAttachment(task.id, file);}}>Añadir Adjunto</button>
             
             {showInput === 'cover' && (
               <input
@@ -165,7 +165,7 @@ const TaskModal = ({
                 className="task-modal-input"
               />
             )}
-            <button onClick={() => {setShowInput(showInput === 'cover' ? '' : 'cover'); if (showInput === 'cover') onAddCover(task.TareaID || task.id, coverId);}}>Añadir Portada</button>
+            <button onClick={() => {setShowInput(showInput === 'cover' ? '' : 'cover'); if (showInput === 'cover') onAddCover(task.id, coverId);}}>Añadir Portada</button>
           </div>
         </div>
         <div className="task-modal-footer">
@@ -181,7 +181,6 @@ TaskModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onRequestClose: PropTypes.func.isRequired,
   task: PropTypes.shape({
-    TareaID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     Titulo: PropTypes.string,
     Descripcion: PropTypes.string,
