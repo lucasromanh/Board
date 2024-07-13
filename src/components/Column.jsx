@@ -1,10 +1,10 @@
-// Column.jsx
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskModal from './TaskModal';
 import './Column.css';
 import { useAuth } from '../context/AuthContext';
+import api from '../api';
 
 const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard, onDeleteCard }) => {
   const { user, refreshToken } = useAuth();
@@ -13,35 +13,37 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
+  if (!user) {
+    console.error('Usuario es null');
+    return <div>Cargando...</div>;
+  }
+
   const handleAddCard = async () => {
     if (newCardTitle && newCardContent) {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No token found in localStorage');
+        console.error('No se encontró el token en localStorage');
         return;
       }
 
       const cardData = { 
         Titulo: newCardTitle, 
         Descripcion: newCardContent, 
-        ProyectoID: user?.defaultBoardId 
+        ProyectoID: user.defaultBoardId 
       };
 
-      console.log('Card data being sent:', cardData);
+      console.log('Datos de la tarjeta que se envían:', cardData);
 
       try {
-        const response = await fetch(`http://localhost:5000/api/tareas`, {
-          method: 'POST',
+        const response = await api.post('/tareas', cardData, {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(cardData),
         });
 
-        const data = await response.json();
-        if (response.ok) {
-          console.log('New card added:', data);
+        const data = response.data;
+        if (response.status === 200) {
+          console.log('Nueva tarjeta añadida:', data);
           onAddCard(column.id, data);
           setNewCardTitle('');
           setNewCardContent('');
@@ -49,32 +51,55 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
           console.error('Error al añadir tarjeta:', response.statusText, data);
         }
       } catch (error) {
-        console.error('Error en la solicitud:', error);
+        if (error.response && error.response.status === 403) {
+          console.log('Token expirado, intentando refrescar el token...');
+          try {
+            const newToken = await refreshToken();
+            const response = await api.post('/tareas', cardData, {
+              headers: {
+                Authorization: `Bearer ${newToken}`,
+              },
+            });
+            const data = response.data;
+            if (response.status === 200) {
+              console.log('Nueva tarjeta añadida después de refrescar el token:', data);
+              onAddCard(column.id, data);
+              setNewCardTitle('');
+              setNewCardContent('');
+            } else {
+              console.error('Error al añadir tarjeta después de refrescar el token:', response.statusText, data);
+            }
+          } catch (refreshError) {
+            console.error('Error al refrescar el token:', refreshError);
+          }
+        } else {
+          console.error('Error en la solicitud:', error);
+        }
       }
     }
   };
 
   const handleEditCard = (task) => {
-    console.log('Selected Task for Edit:', task);
+    console.log('Tarea seleccionada para editar:', task);
     setSelectedTask(task);
     setIsModalOpen(true);
   };
 
   const handleSaveCard = async (updatedTask) => {
-    console.log('Task to save:', updatedTask);
+    console.log('Tarea a guardar:', updatedTask);
     if (!updatedTask.TareaID) {
-      console.error('TareaID is undefined');
+      console.error('TareaID es undefined');
       return;
     }
 
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('No token found in localStorage');
+      console.error('No se encontró el token en localStorage');
       return;
     }
 
     if (!user) {
-      console.error('User is null');
+      console.error('Usuario es null');
       return;
     }
 
@@ -85,224 +110,48 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     };
 
     try {
-      let response = await fetch(`http://localhost:5000/api/tareas/${taskToUpdate.TareaID}`, {
-        method: 'PUT',
+      let response = await api.put(`/tareas/${taskToUpdate.TareaID}`, taskToUpdate, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(taskToUpdate),
       });
 
-      if (response.status === 403) {
-        const newToken = await refreshToken();
-        response = await fetch(`http://localhost:5000/api/tareas/${taskToUpdate.TareaID}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${newToken}`,
-          },
-          body: JSON.stringify(taskToUpdate),
-        });
-      }
-
-      const data = await response.json();
-      if (response.ok) {
+      const data = response.data;
+      if (response.status === 200) {
         onEditCard(column.id, taskToUpdate.TareaID, data);
         setIsModalOpen(false);
       } else {
-        console.error('Failed to save the task:', response.statusText, data);
+        console.error('Error al guardar la tarea:', response.statusText, data);
       }
     } catch (error) {
-      console.error('Error en la solicitud:', error);
+      if (error.response && error.response.status === 403) {
+        console.log('Token expirado, intentando refrescar el token...');
+        try {
+          const newToken = await refreshToken();
+          const response = await api.put(`/tareas/${taskToUpdate.TareaID}`, taskToUpdate, {
+            headers: {
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+          const data = response.data;
+          if (response.status === 200) {
+            onEditCard(column.id, taskToUpdate.TareaID, data);
+            setIsModalOpen(false);
+          } else {
+            console.error('Error al guardar la tarea después de refrescar el token:', response.statusText, data);
+          }
+        } catch (refreshError) {
+          console.error('Error al refrescar el token:', refreshError);
+        }
+      } else {
+        console.error('Error en la solicitud:', error);
+      }
     }
   };
 
   const handleCloseModal = () => {
     setSelectedTask(null);
     setIsModalOpen(false);
-  };
-
-  const handleAddMember = async (taskId, userId) => {
-    if (!taskId) {
-      console.error('taskId is undefined');
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-    try {
-      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/miembros`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ UsuarioID: userId }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Error al añadir miembro:', response.statusText, data);
-      }
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
-    }
-  };
-
-  const handleAddLabel = async (taskId, labelName) => {
-    if (!taskId) {
-      console.error('taskId is undefined');
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-    try {
-      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/etiquetas`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ Nombre: labelName }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Error al añadir etiqueta:', response.statusText, data);
-      }
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
-    }
-  };
-
-  const handleAddChecklist = async (taskId, checklistTitle) => {
-    if (!taskId) {
-      console.error('taskId is undefined');
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-    try {
-      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/checklist`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ Titulo: checklistTitle }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Error al añadir checklist:', response.statusText, data);
-      }
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
-    }
-  };
-
-  const handleAddDueDate = async (taskId, dueDate) => {
-    if (!taskId) {
-      console.error('taskId is undefined');
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-    try {
-      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/fechas`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ FechaVencimiento: dueDate }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Error al añadir fecha de vencimiento:', response.statusText, data);
-      }
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
-    }
-  };
-
-  const handleAddAttachment = async (taskId, file) => {
-    if (!taskId) {
-      console.error('taskId is undefined');
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-    try {
-      const formData = new FormData();
-      formData.append('Archivo', file);
-
-      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/adjuntos`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Error al añadir adjunto:', response.statusText, data);
-      }
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
-    }
-  };
-
-  const handleAddCover = async (taskId, coverId) => {
-    if (!taskId) {
-      console.error('taskId is undefined');
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-    try {
-      const response = await fetch(`http://localhost:5000/api/tareas/${taskId}/portada`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ PortadaID: coverId }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Error al añadir portada:', response.statusText, data);
-      }
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
-    }
   };
 
   const filteredCards = column.cards.filter(card =>
@@ -369,13 +218,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             onRequestClose={handleCloseModal}
             task={selectedTask}
             onSave={handleSaveCard}
-            onAddMember={handleAddMember}
-            onAddLabel={handleAddLabel}
-            onAddChecklist={handleAddChecklist}
-            onAddDueDate={handleAddDueDate}
-            onAddAttachment={handleAddAttachment}
-            onAddCover={handleAddCover}
-            columnId={column.id}  // No se si tendria que pasar el id aca??
+            columnId={column.id}  // Asegúrate de pasar el id de la columna
           />
         </div>
       )}

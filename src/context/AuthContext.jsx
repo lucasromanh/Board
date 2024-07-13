@@ -1,97 +1,104 @@
-import { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import { createContext, useContext, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import api from '../api';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
 
   const register = async (formData) => {
-    const response = await fetch('http://localhost:5000/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setUser(data.user); 
-    } else {
-      throw new Error(data.message || 'Registration failed');
+    try {
+      const response = await api.post('/register', formData);
+      const data = response.data;
+      if (response.status === 200) {
+        setUser(data.user);
+      } else {
+        throw new Error(data.message || 'Registro fallido');
+      }
+    } catch (error) {
+      console.error('Error durante el registro:', error);
+      throw new Error(error.response?.data?.message || 'Registro fallido');
     }
   };
 
   const login = async (formData) => {
-    const response = await fetch('http://localhost:5000/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
-    const data = await response.json();
-    console.log('Response data:', data); 
-    if (response.ok) {
-      if (!data.user?.defaultBoardId) {
-        throw new Error('defaultBoardId is missing in user data');
+    console.log('Enviando solicitud de inicio de sesión con datos del formulario:', formData);
+    return api.post('/login', formData)
+      .then((response) => {
+        console.log('Respuesta recibida de la solicitud de inicio de sesión:', response);
+        const data = response.data;
+        console.log('Datos de la respuesta:', data);
+        
+        if (response.status === 200) {
+          if (!data.user?.defaultBoardId) {
+            throw new Error('defaultBoardId falta en los datos del usuario');
+          }
+          console.log('Datos del usuario válidos, estableciendo el estado del usuario y guardando el token');
+          setUser(data.user);
+          localStorage.setItem('token', data.token);
+          return data.user;
+        } else {
+          throw new Error(data.message || 'Inicio de sesión fallido');
+        }
+      })
+      .catch((error) => {
+        console.error('Error durante el inicio de sesión:', error);
+        throw new Error(error.response?.data?.message || 'Inicio de sesión fallido');
+      });
+  };
+
+  const refreshToken = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await api.post('/refresh-token', null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        const data = response.data;
+        localStorage.setItem('token', data.token);
+        return data.token;
+      } else {
+        throw new Error('Fallo al refrescar el token');
       }
-      setUser(data.user);
-      setToken(data.token);
-      localStorage.setItem('token', data.token);
-      return data.user;  
-    } else {
-      throw new Error(data.message || 'Login failed');
+    } catch (error) {
+      console.error('Error al refrescar el token:', error);
+      throw error;
     }
   };
 
-  const refreshToken = useCallback(async () => {
-    const response = await fetch('http://localhost:5000/api/refresh-token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setToken(data.token);
-      localStorage.setItem('token', data.token);
-      return data.token;
-    } else {
-      throw new Error(data.message || 'Token refresh failed');
-    }
-  }, [token]);
-
   const logout = async () => {
-    const token = localStorage.getItem('token');
-    console.log(`Token to be sent: Bearer ${token}`); 
-    const response = await fetch('http://localhost:5000/api/logout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+    try {
+      const token = localStorage.getItem('token');
+      console.log(`Token a enviar: Bearer ${token}`);
+      const response = await api.post('/logout', null, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (response.status === 200) {
+        console.log('Cierre de sesión exitoso, limpiando el estado del usuario y eliminando el token');
+        setUser(null);
+        localStorage.removeItem('token');
+      } else {
+        const data = response.data;
+        throw new Error(data.message || 'Cierre de sesión fallido');
       }
-    });
-    if (response.ok) {
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-    } else {
-      const data = await response.json();
-      throw new Error(data.message || 'Logout failed');
+    } catch (error) {
+      console.error('Error durante el cierre de sesión:', error);
+      throw new Error(error.response?.data?.message || 'Cierre de sesión fallido');
     }
   };
 
   const value = useMemo(() => ({
     user,
-    token,
     register,
     login,
     logout,
     refreshToken,
-  }), [user, token, refreshToken]);
+  }), [user]);
 
   return (
     <AuthContext.Provider value={value}>

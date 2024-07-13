@@ -18,10 +18,10 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form data on submit:', formData); // Asegúrate de que los datos del formulario son correctos
     try {
       const user = await login(formData);
-      console.log('User data after login:', user);  // Verifica que user tiene la estructura correcta
-      // Redirigir siempre a /board sin importar el defaultBoardId
+      console.log('User data after login:', user);  
       navigate('/board');
     } catch (error) {
       console.error('Error during login:', error.message);
