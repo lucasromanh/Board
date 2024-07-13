@@ -15,7 +15,7 @@ const Navbar = () => {
         <div className="navbar-links">
           <Link to="/">Home</Link>
           {location.pathname !== '/login' && <Link to="/login">Login</Link>}
-          <Link to="/register">Register</Link>
+          {location.pathname !== '/register' && <Link to="/register">Register</Link>}
           <Link to="/board">Tableros</Link>
         </div>
       </div>
