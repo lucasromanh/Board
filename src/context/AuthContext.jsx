@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/register', formData);
       const data = response.data;
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setUser(data.user);
       } else {
         throw new Error(data.message || 'Registro fallido');
