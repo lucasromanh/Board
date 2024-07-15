@@ -18,7 +18,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form data on submit:', formData); // Asegúrate de que los datos del formulario son correctos
+    console.log('Form data on submit:', formData); 
     try {
       const user = await login(formData);
       console.log('User data after login:', user);  

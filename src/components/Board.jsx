@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addCard, updateCard, removeCard, setSearchText, addColumn, updateColumnTitle } from '../store';
 import Column from './Column';
@@ -15,6 +15,59 @@ const Board = () => {
   const dispatch = useDispatch();
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const { user } = useAuth();
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No se encontró el token en localStorage');
+        return;
+      }
+
+      try {
+        const response = await api.get('/tareas', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          const tasks = response.data;
+          console.log("Tareas obtenidas:", tasks);
+          tasks.forEach(task => {
+            if (validateTask(task)) {
+              dispatch(addCard({
+                columnId: 'column-1',
+                card: {
+                  id: task.id.toString(),
+                  TareaID: task.id.toString(),
+                  title: task.Titulo,
+                  content: task.Descripcion,
+                  estado: task.Estado,
+                  proyectoID: task.ProyectoID
+                }
+              }));
+            } else {
+              console.error('Tarea inválida:', task);
+            }
+          });
+        } else {
+          console.error('Error al cargar tareas:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error al cargar tareas:', error);
+      }
+    };
+
+    loadTasks();
+  }, [dispatch]);
+
+  const validateTask = (task) => {
+    if (!task.id || !task.Titulo || !task.Descripcion || task.Estado === undefined || !task.ProyectoID) {
+      return false;
+    }
+    return true;
+  };
 
   const handleSearch = (e) => {
     dispatch(setSearchText(e.target.value));
@@ -33,10 +86,15 @@ const Board = () => {
 
   const handleAddCard = async (columnId, { title, content }) => {
     try {
-      const response = await api.post('/api/tareas', { columnId, title, content });
+      const response = await api.post('/tareas', {
+        ProyectoID: user.defaultBoardId,
+        Titulo: title,
+        Descripcion: content,
+        Estado: 'pendiente'
+      });
       const newCard = {
-        id: response.data.id,
-        TareaID: response.data.id, 
+        id: response.data.task.id.toString(),
+        TareaID: response.data.task.id.toString(),
         title,
         content
       };
@@ -45,11 +103,10 @@ const Board = () => {
       console.error('Error al agregar tarjeta:', error);
     }
   };
-  
 
   const handleEditCard = async (columnId, cardId, updatedCard) => {
     try {
-      await api.put(`/api/tareas/${cardId}`, { columnId, ...updatedCard });
+      await api.put(`/tareas/${cardId}`, { columnId, ...updatedCard });
       dispatch(updateCard({ columnId, cardId, updatedCard }));
     } catch (error) {
       console.error('Error al editar tarjeta:', error);
@@ -58,7 +115,7 @@ const Board = () => {
 
   const handleDeleteCard = async (columnId, cardId) => {
     try {
-      await api.delete(`/api/tareas/${cardId}`);
+      await api.delete(`/tareas/${parseInt(cardId, 10)}`);
       dispatch(removeCard({ columnId, cardId }));
     } catch (error) {
       console.error('Error al eliminar tarjeta:', error);
@@ -73,7 +130,7 @@ const Board = () => {
           <button title="Agregar USUARIO a tablero"><i className="fas fa-user-plus"></i></button>
           <button title="Ver USUARIOS CONECTADOS"><i className="fas fa-users"></i></button>
           <Logout />
-          {user && <Link to={`/profile/${user.id}`}><i className="fas fa-user"></i></Link>}
+          {user && <Link to={`/profile/${user.id}`} title="Mi Perfil"><i className="fas fa-user"></i></Link>}
         </div>
       </aside>
       <div className="main-content">
@@ -98,10 +155,10 @@ const Board = () => {
               onDeleteCard={handleDeleteCard}
             />
           ))}
-          <div className="desk new-column-form">
+          <div className="new-column-form">
             <input
               type="text"
-              placeholder="Nueva Columna"
+              placeholder="Nuevo título de columna"
               value={newColumnTitle}
               onChange={(e) => setNewColumnTitle(e.target.value)}
               className="new-column-title"

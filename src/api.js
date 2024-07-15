@@ -7,4 +7,13 @@ const api = axios.create({
   },
 });
 
+// Añadir interceptor para incluir el token en todas las solicitudes no s eme ocurre mas opciones
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default api;

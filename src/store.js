@@ -30,13 +30,6 @@ const initialBoardState = {
   ],
 };
 
-const initialSearchState = '';
-
-// Estado inicial para la autenticación
-const initialAuthState = {
-  isAuthenticated: true,
-};
-
 const boardSlice = createSlice({
   name: 'board',
   initialState: initialBoardState,
@@ -58,7 +51,9 @@ const boardSlice = createSlice({
     addCard: (state, action) => {
       const { columnId, card } = action.payload;
       const column = state.columns.find(column => column.id === columnId);
-      column.cards.push(card);
+      if (column) {
+        column.cards.push(card);
+      }
     },
     removeCard: (state, action) => {
       const { columnId, cardId } = action.payload;
@@ -76,7 +71,11 @@ const boardSlice = createSlice({
         column.cards[cardIndex] = {
           ...column.cards[cardIndex],
           ...updatedCard,
+          id: cardId,
         };
+      } else {
+        // Si la tarjeta no existe, agregarla
+        column.cards.push({ id: cardId, ...updatedCard });
       }
     },
     addColumn: (state, action) => {
@@ -97,7 +96,7 @@ const boardSlice = createSlice({
 
 const searchSlice = createSlice({
   name: 'search',
-  initialState: initialSearchState,
+  initialState: '',
   reducers: {
     setSearchText: (state, action) => action.payload,
   },
@@ -105,7 +104,7 @@ const searchSlice = createSlice({
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: initialAuthState,
+  initialState: { isAuthenticated: true },
   reducers: {
     logout: (state) => {
       state.isAuthenticated = false;

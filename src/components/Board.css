@@ -3,6 +3,7 @@
   height: 100vh;
   background-color: #282c34;
   color: #fff;
+  overflow: hidden; /* Para asegurar que el contenido no se desborde */
 }
 
 .side-panel {
@@ -84,6 +85,7 @@
   border-radius: 8px;
   padding: 10px;
   margin-left: 10px;
+  align-self: flex-start; /* Para que no se estire en toda la altura */
 }
 
 .new-column-title {
