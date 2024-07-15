@@ -36,7 +36,8 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/register', formData);
       const data = response.data;
       if (response.status === 200 || response.status === 201) {
-        setUser(data.user);
+        setUser({ ...data.user, id: data.user.UsuarioID });
+        localStorage.setItem('token', data.token);
       } else {
         throw new Error(data.message || 'Registro fallido');
       }
@@ -53,13 +54,13 @@ export const AuthProvider = ({ children }) => {
       console.log('Respuesta recibida de la solicitud de inicio de sesión:', response);
       const data = response.data;
       console.log('Datos de la respuesta:', data);
-
+  
       if (response.status === 200) {
         if (!data.user?.defaultBoardId) {
           throw new Error('defaultBoardId falta en los datos del usuario');
         }
         console.log('Datos del usuario válidos, estableciendo el estado del usuario y guardando el token');
-        setUser(data.user);
+        setUser({ ...data.user, id: data.user.UsuarioID });
         localStorage.setItem('token', data.token);
         navigate('/board');
         return data.user;

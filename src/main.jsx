@@ -1,12 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store, { moveCard } from './store';
 import App from './App';
-import Login from './components/Login';
-import Board from './components/Board';
-import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import 'bulma/css/bulma.min.css';
@@ -38,18 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <DragDropContext onDragEnd={onDragEnd}>
         <Router>
           <AuthProvider>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/board"
-                element={
-                  <ProtectedRoute>
-                    <Board />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<App />} />
-            </Routes>
+            <App />
           </AuthProvider>
         </Router>
       </DragDropContext>

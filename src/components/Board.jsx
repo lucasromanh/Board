@@ -63,10 +63,11 @@ const Board = () => {
   }, [dispatch]);
 
   const validateTask = (task) => {
-    if (!task.id || !task.Titulo || !task.Descripcion || task.Estado === undefined || !task.ProyectoID) {
-      return false;
+    const valid = task.id && task.Titulo && task.Descripcion && task.Estado !== undefined && task.ProyectoID;
+    if (!valid) {
+      console.error('Tarea inválida:', task);
     }
-    return true;
+    return valid;
   };
 
   const handleSearch = (e) => {
