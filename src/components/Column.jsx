@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'; 
 import PropTypes from 'prop-types';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskModal from './TaskModal';
@@ -26,11 +26,20 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
         return;
       }
 
+      let estado;
+      if (column.id === 'column-1') {
+        estado = 'pendiente';
+      } else if (column.id === 'column-2') {
+        estado = 'en_proceso';
+      } else {
+        estado = 'completada';
+      }
+      
       const cardData = {
         Titulo: newCardTitle,
         Descripcion: newCardContent,
         ProyectoID: user.defaultBoardId,
-        Estado: 'pendiente'
+        Estado: estado
       };
 
       console.log('Datos de la tarjeta que se envían:', cardData);
@@ -50,7 +59,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             TareaID: data.task.id.toString(),
             title: newCardTitle,
             content: newCardContent,
-            estado: 'pendiente',
+            estado: column.id === 'column-1' ? 'pendiente' : column.id === 'column-2' ? 'en_proceso' : column.id === 'column-3' ? 'Finalizada': 'Finalizada',
             proyectoID: user.defaultBoardId
           });
           setNewCardTitle('');
@@ -76,7 +85,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
                 TareaID: data.task.id.toString(),
                 title: newCardTitle,
                 content: newCardContent,
-                estado: 'pendiente',
+                estado: column.id === 'column-1' ? 'pendiente' : column.id === 'column-2' ? 'en_proceso' : 'completada',
                 proyectoID: user.defaultBoardId
               });
               setNewCardTitle('');
@@ -128,57 +137,71 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     };
   
     try {
-      const response = await api.put(`/tareas/${updatedTask.id}`, taskToUpdate, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await updateTask(updatedTask.id, taskToUpdate, token);
   
       if (response.status === 200) {
-        // Actualizar la tarjeta en el estado del board
         onEditCard(column.id, updatedTask.id, taskToUpdate);
         setIsModalOpen(false);
       } else if (response.status === 404) {
-        // Si la tarea no existe en la base de datos, crear una nueva
-        const createResponse = await api.post('/tareas', taskToUpdate, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        if (createResponse.status === 201) {
-          const newTask = createResponse.data;
-          onAddCard(column.id, { ...taskToUpdate, id: newTask.id });
-          setIsModalOpen(false);
-        } else {
-          console.error('Error al crear la nueva tarea:', createResponse.statusText);
-        }
+        await handleCreateTask(taskToUpdate, token);
       } else {
         console.error('Error al guardar la tarea:', response.statusText);
       }
     } catch (error) {
       if (error.response && error.response.status === 403) {
         console.log('Token expirado, intentando refrescar el token...');
-        try {
-          const newToken = await refreshToken();
-          const response = await api.put(`/tareas/${updatedTask.id}`, taskToUpdate, {
-            headers: {
-              Authorization: `Bearer ${newToken}`,
-            },
-          });
-          if (response.status === 200) {
-            onEditCard(column.id, updatedTask.id, taskToUpdate);
-            setIsModalOpen(false);
-          } else {
-            console.error('Error al guardar la tarea después de refrescar el token:', response.statusText);
-          }
-        } catch (refreshError) {
-          console.error('Error al refrescar el token:', refreshError);
-        }
+        await handleRefreshToken(updatedTask.id, taskToUpdate);
       } else {
         console.error('Error en la solicitud:', error);
       }
     }
+  };
+  
+  const handleCreateTask = async (taskToUpdate, token) => {
+    try {
+      const createResponse = await createTask(taskToUpdate, token);
+  
+      if (createResponse.status === 201) {
+        const newTask = createResponse.data;
+        onAddCard(column.id, { ...taskToUpdate, id: newTask.id });
+        setIsModalOpen(false);
+      } else {
+        console.error('Error al crear la nueva tarea:', createResponse.statusText);
+      }
+    } catch (error) {
+      console.error('Error al crear la nueva tarea:', error);
+    }
+  };
+  
+  const handleRefreshToken = async (taskId, taskToUpdate) => {
+    try {
+      const newToken = await refreshToken();
+      const response = await updateTask(taskId, taskToUpdate, newToken);
+      if (response.status === 200) {
+        onEditCard(column.id, taskId, taskToUpdate);
+        setIsModalOpen(false);
+      } else {
+        console.error('Error al guardar la tarea después de refrescar el token:', response.statusText);
+      }
+    } catch (refreshError) {
+      console.error('Error al refrescar el token:', refreshError);
+    }
+  };
+  
+  const updateTask = async (taskId, taskData, token) => {
+    return await api.put(`/tareas/${taskId}`, taskData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+  
+  const createTask = async (taskData, token) => {
+    return await api.post('/tareas', taskData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   };
   
   const handleDeleteCard = async (cardId) => {
@@ -294,6 +317,13 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             onRequestClose={handleCloseModal}
             task={selectedTask}
             onSave={handleSaveCard}
+            onAddMember={() => {}}
+            onAddLabel={() => {}}
+            onAddChecklist={() => {}}
+            onAddDueDate={() => {}}
+            onAddAttachment={() => {}}
+            onAddCover={() => {}}
+            columnId={column.id}
           />
         </div>
       )}

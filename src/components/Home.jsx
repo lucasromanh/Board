@@ -16,16 +16,16 @@ const Home = () => (
   <div className="home-container">
     <Navbar />
     <main className="main-content">
-      <section className="section banner-section has-text-centered">
+      <section className="section banner-section">
         <div className="container">
-          <h1 className="title is-2"> CASI-Trello <span className="jinja">JINJARDIGANS</span> unifica tus tareas, compañeros de equipo y herramientas</h1>
-          <p className="subtitle is-4">Mantenlo todo en el mismo lugar, aunque tu equipo no lo esté.</p>
+          <h1 className="title">CASI-Trello <span className="jinja">JINJARDIGANS</span> unifica tus tareas, compañeros de equipo y herramientas</h1>
+          <p className="subtitle">Mantenlo todo en el mismo lugar, aunque tu equipo no lo esté.</p>
           <form className="field has-addons has-addons-centered cta-form">
             <div className="control">
               <input className="input" type="email" placeholder="Ingresa tu correo electrónico" />
             </div>
             <div className="control">
-              <button className="button is-primary" type="submit">Regístrate, ¡es gratis!</button>
+              <button className="button" type="submit">Regístrate, ¡es gratis!</button>
             </div>
           </form>
           <figure className="image is-128x128 is-inline-block mt-4">
@@ -47,7 +47,7 @@ const Home = () => (
             </div>
           </div>
           <div className="columns is-vcentered is-variable is-8">
-            <div className="column is-5 is-offset-1-desktop order-2-desktop">
+            <div className="column is-5">
               <figure className="image">
                 <img src={featureImage2} alt="Funcionalidad 2" />
               </figure>
@@ -72,7 +72,7 @@ const Home = () => (
       </section>
       <section className="section cases-section">
         <div className="container">
-          <h2 className="title is-2 has-text-centered">Casos de uso</h2>
+          <h2 className="title is-2">Casos de uso</h2>
           <div className="columns is-vcentered is-variable is-8">
             <div className="column is-5">
               <figure className="image">
@@ -85,7 +85,7 @@ const Home = () => (
             </div>
           </div>
           <div className="columns is-vcentered is-variable is-8">
-            <div className="column is-5 is-offset-1-desktop order-2-desktop">
+            <div className="column is-5">
               <figure className="image">
                 <img src={caseImage2} alt="Caso 2" />
               </figure>
@@ -130,7 +130,7 @@ const Home = () => (
     <footer className="footer">
       <div className="content has-text-centered">
         <figure className="image is-128x128 is-inline-block mb-4">
-          <img src={footerLogo} alt="Logo Footer" />
+          <img src={footerLogo} alt="Logo Footer" className="footer-logo"/>
         </figure>
         <p>&copy; 2023 Tu Empresa. Todos los derechos reservados.</p>
         <nav className="footer-nav">
@@ -144,3 +144,4 @@ const Home = () => (
 );
 
 export default Home;
+

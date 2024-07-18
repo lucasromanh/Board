@@ -2,32 +2,23 @@ import { configureStore, createSlice } from '@reduxjs/toolkit';
 
 // Estado inicial para el tablero
 const initialBoardState = {
-  columns: [
-    {
+  columns: {
+    'column-1': {
       id: 'column-1',
       title: 'Para Hacer',
-      cards: [
-        { id: 'card-1', title: 'Tarea 1', content: '<p>Contenido para Tarea 1</p>' },
-        { id: 'card-2', title: 'Tarea 2', content: '<p>Contenido para Tarea 2</p>' },
-      ],
+      cards: [],
     },
-    {
+    'column-2': {
       id: 'column-2',
       title: 'En Proceso',
-      cards: [
-        { id: 'card-3', title: 'Tarea 3', content: '<p>Contenido para Tarea 3</p>' },
-        { id: 'card-4', title: 'Tarea 4', content: '<p>Contenido para Tarea 4</p>' },
-      ],
+      cards: [],
     },
-    {
+    'column-3': {
       id: 'column-3',
       title: 'Finalizada',
-      cards: [
-        { id: 'card-5', title: 'Tarea 5', content: '<p>Contenido para Tarea 5</p>' },
-        { id: 'card-6', title: 'Tarea 6', content: '<p>Contenido para Tarea 6</p>' },
-      ],
+      cards: [],
     },
-  ],
+  },
 };
 
 const boardSlice = createSlice({
@@ -38,34 +29,27 @@ const boardSlice = createSlice({
       const { source, destination } = action.payload;
       if (!destination) return;
 
-      const sourceColumn = state.columns.find(column => column.id === source.droppableId);
-      const destinationColumn = state.columns.find(column => column.id === destination.droppableId);
+      const sourceColumn = state.columns[source.droppableId];
+      const destinationColumn = state.columns[destination.droppableId];
       const [movedCard] = sourceColumn.cards.splice(source.index, 1);
 
-      if (sourceColumn.id === destinationColumn.id) {
-        sourceColumn.cards.splice(destination.index, 0, movedCard);
-      } else {
-        destinationColumn.cards.splice(destination.index, 0, movedCard);
-      }
+      destinationColumn.cards.splice(destination.index, 0, movedCard);
     },
     addCard: (state, action) => {
       const { columnId, card } = action.payload;
-      const column = state.columns.find(column => column.id === columnId);
+      const column = state.columns[columnId];
       if (column) {
         column.cards.push(card);
       }
     },
     removeCard: (state, action) => {
       const { columnId, cardId } = action.payload;
-      const column = state.columns.find(column => column.id === columnId);
+      const column = state.columns[columnId];
       column.cards = column.cards.filter(card => card.id !== cardId);
-      if (column.cards.length === 0) {
-        state.columns = state.columns.filter(column => column.id !== columnId);
-      }
     },
     updateCard: (state, action) => {
       const { columnId, cardId, updatedCard } = action.payload;
-      const column = state.columns.find(column => column.id === columnId);
+      const column = state.columns[columnId];
       const cardIndex = column.cards.findIndex(card => card.id === cardId);
       if (cardIndex !== -1) {
         column.cards[cardIndex] = {
@@ -73,23 +57,24 @@ const boardSlice = createSlice({
           ...updatedCard,
           id: cardId,
         };
-      } else {
-        // Si la tarjeta no existe, agregarla
-        column.cards.push({ id: cardId, ...updatedCard });
       }
     },
     addColumn: (state, action) => {
+      const { columnId, title } = action.payload;
       const newColumn = {
-        id: `column-${Date.now()}`,
-        title: action.payload,
+        id: columnId,
+        title,
         cards: [],
       };
-      state.columns.push(newColumn);
+      state.columns[newColumn.id] = newColumn;
     },
     updateColumnTitle: (state, action) => {
       const { columnId, newTitle } = action.payload;
-      const column = state.columns.find(column => column.id === columnId);
+      const column = state.columns[columnId];
       column.title = newTitle;
+    },
+    setColumns: (state, action) => {
+      state.columns = action.payload;
     },
   },
 });
@@ -104,10 +89,15 @@ const searchSlice = createSlice({
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: { isAuthenticated: true },
+  initialState: { isAuthenticated: false, user: null },
   reducers: {
+    login: (state, action) => {
+      state.isAuthenticated = true;
+      state.user = action.payload;
+    },
     logout: (state) => {
       state.isAuthenticated = false;
+      state.user = null;
     },
   },
 });
@@ -127,6 +117,7 @@ export const {
   updateCard,
   addColumn,
   updateColumnTitle,
+  setColumns,
 } = boardSlice.actions;
 
 export const { setSearchText } = searchSlice.actions;

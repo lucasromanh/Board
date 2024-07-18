@@ -38,11 +38,19 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200 || response.status === 201) {
         setUser({ ...data.user, id: data.user.UsuarioID });
         localStorage.setItem('token', data.token);
+        alert('Registro exitoso!'); 
+        const handleRegisterSuccess = () => {
+          navigate('/dashboard');
+        };
+
+        alert('Registro exitoso!');
+        handleRegisterSuccess();
       } else {
         throw new Error(data.message || 'Registro fallido');
       }
     } catch (error) {
       console.error('Error durante el registro:', error);
+      alert('Error en el registro');
       throw new Error(error.response?.data?.message || 'Registro fallido');
     }
   }, []);
@@ -54,7 +62,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Respuesta recibida de la solicitud de inicio de sesión:', response);
       const data = response.data;
       console.log('Datos de la respuesta:', data);
-  
+
       if (response.status === 200) {
         if (!data.user?.defaultBoardId) {
           throw new Error('defaultBoardId falta en los datos del usuario');
@@ -86,13 +94,16 @@ export const AuthProvider = ({ children }) => {
         console.log('Cierre de sesión exitoso, limpiando el estado del usuario y eliminando el token');
         setUser(null);
         localStorage.removeItem('token');
-        navigate('/login');
+        navigate('/');
       } else {
         const data = response.data;
         throw new Error(data.message || 'Cierre de sesión fallido');
       }
     } catch (error) {
       console.error('Error durante el cierre de sesión:', error);
+      setUser(null); 
+      localStorage.removeItem('token');
+      navigate('/login');
       throw new Error(error.response?.data?.message || 'Cierre de sesión fallido');
     }
   }, [navigate]);
@@ -114,7 +125,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error al refrescar el token:', error);
-      logout();
+      await logout(); 
       throw error;
     }
   }, [logout]);
@@ -122,7 +133,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       refreshToken();
-    }, 15 * 60 * 1000); // Refrescar cada 15 minutos
+    }, 15 * 60 * 1000); 
     return () => clearInterval(interval);
   }, [refreshToken]);
 
