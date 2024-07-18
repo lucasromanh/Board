@@ -3,6 +3,7 @@ import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
+import './Register.css'; // Importar el archivo CSS específico
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const Register = () => {
     Password: '',
   });
 
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -26,6 +28,8 @@ const Register = () => {
     e.preventDefault();
     try {
       await register(formData);
+      setShowSuccessPopup(true);
+      setTimeout(() => setShowSuccessPopup(false), 5000); // Ocultar completamente después de 5 segundos
       navigate('/board');
     } catch (error) {
       console.error(error);
@@ -102,6 +106,11 @@ const Register = () => {
                 </div>
               </div>
             </form>
+            {showSuccessPopup && (
+              <div className="popup">
+                ¡Registro exitoso!
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -109,4 +118,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Register;

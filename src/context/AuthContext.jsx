@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
@@ -8,6 +8,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false); // Estado para el popup de éxito
   const navigate = useNavigate();
 
   const initializeAuth = useCallback(async () => {
@@ -37,6 +38,8 @@ export const AuthProvider = ({ children }) => {
       const data = response.data;
       if (response.status === 200 || response.status === 201) {
         setUser(data.user);
+        setShowSuccessPopup(true); // Mostrar el popup de éxito
+        setTimeout(() => setShowSuccessPopup(false), 3000); // Ocultar después de 3 segundos
       } else {
         throw new Error(data.message || 'Registro fallido');
       }
@@ -136,6 +139,9 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
+      {showSuccessPopup && (
+        <div className="popup">¡Registro exitoso!</div> // Popup de éxito
+      )}
     </AuthContext.Provider>
   );
 };
