@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -30,15 +29,13 @@ const onDragEnd = (result) => {
 };
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Router>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </Router>
-      </DragDropContext>
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Router>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </Router>
+    </DragDropContext>
+  </Provider>
 );

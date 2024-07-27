@@ -11,26 +11,30 @@ const ChangePassword = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleChangePassword = async () => {
+  const handleSave = async () => {
     if (newPassword !== confirmPassword) {
-      setError('Las contraseñas no coinciden.');
+      setError('Las nuevas contraseñas no coinciden.');
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
-      const response = await api.put(`/usuarios/${user.UsuarioID}/password`, { oldPassword, newPassword }, {
+      const response = await api.put(`/usuarios/${user.UsuarioID}/password`, {
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.status === 200) {
         navigate(`/profile/${user.UsuarioID}`);
       } else {
-        setError('Error al cambiar la contraseña.');
+        setError('Error al actualizar la contraseña.');
       }
     } catch (error) {
-      setError('Error al cambiar la contraseña.');
+      setError('Error al actualizar la contraseña.');
     }
   };
 
@@ -40,7 +44,7 @@ const ChangePassword = () => {
         <h1 className="title">Cambiar Contraseña</h1>
         {error && <div className="notification is-danger">{error}</div>}
         <div className="field">
-          <label className="label">Contraseña Actual</label>
+          <label className="label">Contraseña Antigua</label>
           <div className="control">
             <input className="input" type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
           </div>
@@ -58,8 +62,9 @@ const ChangePassword = () => {
           </div>
         </div>
         <div className="buttons">
-          <button className="button is-primary" onClick={handleChangePassword}>Cambiar Contraseña</button>
+          <button className="button is-primary" onClick={handleSave}>Guardar</button>
           <button className="button" onClick={() => navigate(`/profile/${user.UsuarioID}`)}>Cancelar</button>
+          <button className="button is-link" onClick={() => navigate('/board')}>Volver al Tablero</button>
         </div>
       </div>
     </div>

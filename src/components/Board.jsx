@@ -15,7 +15,7 @@ const Board = () => {
   const searchTerm = useSelector(state => state.search);
   const dispatch = useDispatch();
   const [newColumnTitle, setNewColumnTitle] = useState('');
-  const { user } = useAuth();
+  const { user, refreshToken } = useAuth();
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -36,7 +36,6 @@ const Board = () => {
           const tasks = response.data;
           console.log("Tareas obtenidas:", tasks);
 
-          // Columnas predeterminadas
           const initialColumns = {
             'column-1': {
               id: 'column-1',
@@ -55,7 +54,6 @@ const Board = () => {
             },
           };
 
-          // Asignar tareas a las columnas correspondientes
           tasks.forEach(task => {
             if (validateTask(task)) {
               const columnId = task.status === 'pendiente' ? 'column-1' : task.status === 'en_proceso' ? 'column-2' : 'column-3';
@@ -167,14 +165,39 @@ const Board = () => {
 
   const handleDeleteCard = async (columnId, cardId) => {
     try {
-      const response = await api.delete(`/tareas/${parseInt(cardId, 10)}`);
+      const token = localStorage.getItem('token');
+      const response = await api.delete(`/tareas/${parseInt(cardId, 10)}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.status === 204) {
         dispatch(removeCard({ columnId, cardId }));
       } else {
         console.error('Error al eliminar la tarea:', response.statusText, response.data);
       }
     } catch (error) {
-      console.error('Error al eliminar tarjeta:', error);
+      if (error.response && error.response.status === 403) {
+        console.log('Token expirado, intentando refrescar el token...');
+        try {
+          const newToken = await refreshToken();
+          const response = await api.delete(`/tareas/${parseInt(cardId, 10)}`, {
+            headers: {
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+
+          if (response.status === 204) {
+            dispatch(removeCard({ columnId, cardId }));
+          } else {
+            console.error('Error al eliminar la tarea después de refrescar el token:', response.statusText, response.data);
+          }
+        } catch (refreshError) {
+          console.error('Error al refrescar el token:', refreshError);
+        }
+      } else {
+        console.error('Error en la solicitud:', error);
+      }
     }
   };
 

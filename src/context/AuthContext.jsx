@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       alert('Error en el registro');
       throw new Error(error.response?.data?.message || 'Registro fallido');
     }
-  }, []);
+  }, [navigate]);
 
   const login = useCallback(async (formData) => {
     console.log('Enviando solicitud de inicio de sesión con datos del formulario:', formData);

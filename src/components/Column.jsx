@@ -59,7 +59,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             TareaID: data.task.id.toString(),
             title: newCardTitle,
             content: newCardContent,
-            estado: column.id === 'column-1' ? 'pendiente' : column.id === 'column-2' ? 'en_proceso' : column.id === 'column-3' ? 'Finalizada': 'Finalizada',
+            estado: column.id === 'column-1' ? 'pendiente' : column.id === 'column-2' ? 'en_proceso' : 'completada',
             proyectoID: user.defaultBoardId
           });
           setNewCardTitle('');

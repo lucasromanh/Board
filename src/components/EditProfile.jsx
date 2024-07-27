@@ -34,7 +34,9 @@ const EditProfile = () => {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await api.put(`/usuarios/${user.UsuarioID}`, profile, {
+      const profileData = { ...profile };
+      delete profileData.CorreoElectronico;  // Asegurarse de eliminar el campo de correo electrónico si existe
+      const response = await api.put(`/usuarios/${user.UsuarioID}`, profileData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,12 +73,11 @@ const EditProfile = () => {
           </div>
         </div>
         <div className="field">
-          <label className="label">Correo Electrónico</label>
+          <label className="label">Teléfono</label>
           <div className="control">
-            <input className="input" type="email" name="CorreoElectronico" value={profile.CorreoElectronico} onChange={handleInputChange} />
+            <input className="input" type="text" name="Telefono" value={profile.Telefono || ''} onChange={handleInputChange} />
           </div>
         </div>
-        {/* Más campos del perfil */}
         <div className="buttons">
           <button className="button is-primary" onClick={handleSave}>Guardar</button>
           <button className="button" onClick={() => navigate(`/profile/${user.UsuarioID}`)}>Cancelar</button>
