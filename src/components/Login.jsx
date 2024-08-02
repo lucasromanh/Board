@@ -1,8 +1,9 @@
-import { useState, useContext } from 'react';
+import 'bulma/css/bulma.min.css';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import Navbar from './Navbar'; 
-import 'bulma/css/bulma.min.css'; 
-import { useNavigate } from 'react-router-dom'; 
+import './Login.css'; // Importa el archivo CSS con la clase de fondo
+import Navbar from './Navbar';
 
 const Login = () => {
   const [formData, setFormData] = useState({ CorreoElectronico: '', Password: '' });
@@ -30,7 +31,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="login-background">
       <Navbar /> 
       <div className="container">
         <div className="columns is-centered">
