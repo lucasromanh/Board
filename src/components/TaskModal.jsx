@@ -188,6 +188,9 @@ TaskModal.propTypes = {
     content: PropTypes.string,
     ProyectoID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     FechaVencimiento: PropTypes.string,
+    labels: PropTypes.arrayOf(PropTypes.string),
+    members: PropTypes.arrayOf(PropTypes.string),
+    checklists: PropTypes.arrayOf(PropTypes.object)
   }),
   onSave: PropTypes.func.isRequired,
   onAddMember: PropTypes.func.isRequired,

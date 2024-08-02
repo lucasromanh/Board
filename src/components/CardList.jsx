@@ -36,12 +36,14 @@ CardList.propTypes = {
       id: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
       content: PropTypes.string.isRequired,
+      labels: PropTypes.arrayOf(PropTypes.string),
+      members: PropTypes.arrayOf(PropTypes.string),
     })
   ).isRequired,
   searchTerm: PropTypes.string.isRequired,
   onEditCard: PropTypes.func.isRequired,
   onDeleteCard: PropTypes.func.isRequired,
-  openEditModal: PropTypes.func.isRequired, 
+  openEditModal: PropTypes.func.isRequired,
 };
 
 export default CardList;

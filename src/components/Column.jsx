@@ -1,4 +1,4 @@
-import { useState } from 'react'; 
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskModal from './TaskModal';
@@ -133,7 +133,10 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
       Descripcion: updatedTask.Descripcion || updatedTask.content,
       Importancia: updatedTask.Importancia || 1,
       Estado: updatedTask.Estado || 'pendiente',
-      FechaVencimiento: updatedTask.FechaVencimiento || null
+      FechaVencimiento: updatedTask.FechaVencimiento || null,
+      labels: updatedTask.labels || [],
+      members: updatedTask.members || [],
+      checklists: updatedTask.checklists || []
     };
   
     try {
@@ -156,6 +159,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
       }
     }
   };
+  
   
   const handleCreateTask = async (taskToUpdate, token) => {
     try {
@@ -286,6 +290,16 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
                   >
                     <div className="task-card-title">{card.title}</div>
                     <div className="task-card-content" dangerouslySetInnerHTML={{ __html: card.content }} />
+                    <div className="task-card-labels">
+                      {card.labels.map((label, index) => (
+                        <span key={index} className="task-card-label">{label}</span>
+                      ))}
+                    </div>
+                    <div className="task-card-members">
+                      {card.members.map((member, index) => (
+                        <span key={index} className="task-card-member">{member}</span>
+                      ))}
+                    </div>
                     <div className="task-card-actions">
                       <button onClick={() => handleEditCard(card)}>✏️</button>
                       <button onClick={() => handleDeleteCard(card.id)}>🗑️</button>
@@ -317,10 +331,26 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             onRequestClose={handleCloseModal}
             task={selectedTask}
             onSave={handleSaveCard}
-            onAddMember={() => {}}
-            onAddLabel={() => {}}
-            onAddChecklist={() => {}}
-            onAddDueDate={() => {}}
+            onAddMember={(taskId, member) => {
+              const updatedTask = { ...selectedTask, members: [...selectedTask.members, member] };
+              setSelectedTask(updatedTask);
+              handleSaveCard(updatedTask);
+            }}
+            onAddLabel={(taskId, label) => {
+              const updatedTask = { ...selectedTask, labels: [...selectedTask.labels, label] };
+              setSelectedTask(updatedTask);
+              handleSaveCard(updatedTask);
+            }}
+            onAddChecklist={(taskId, checklist) => {
+              const updatedTask = { ...selectedTask, checklists: [...selectedTask.checklists, checklist] };
+              setSelectedTask(updatedTask);
+              handleSaveCard(updatedTask);
+            }}
+            onAddDueDate={(taskId, dueDate) => {
+              const updatedTask = { ...selectedTask, FechaVencimiento: dueDate };
+              setSelectedTask(updatedTask);
+              handleSaveCard(updatedTask);
+            }}
             onAddAttachment={() => {}}
             onAddCover={() => {}}
             columnId={column.id}
@@ -339,6 +369,8 @@ Column.propTypes = {
       id: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
       content: PropTypes.string.isRequired,
+      labels: PropTypes.arrayOf(PropTypes.string),
+      members: PropTypes.arrayOf(PropTypes.string),
     })).isRequired,
   }).isRequired,
   searchTerm: PropTypes.string.isRequired,

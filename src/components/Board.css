@@ -70,7 +70,8 @@
 .columns {
   display: flex;
   flex-grow: 1;
-  overflow-x: auto;
+  overflow-x: auto; /* Scroll horizontal */
+  overflow-y: auto; /* Scroll vertical */
   padding: 10px;
 }
 

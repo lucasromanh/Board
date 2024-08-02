@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { addCard, updateCard, removeCard, setSearchText, addColumn, updateColumnTitle, setColumns, moveCard } from '../store';
 import Column from './Column';
@@ -63,7 +64,10 @@ const Board = () => {
                 title: task.title,
                 content: task.description,
                 estado: task.status,
-                proyectoID: task.board_id
+                proyectoID: task.board_id,
+                labels: task.labels || [],
+                members: task.members || [],
+                checklists: task.checklists || []
               });
             } else {
               console.error('Tarea inválida:', task);
@@ -147,6 +151,9 @@ const Board = () => {
         title,
         content,
         estado,
+        labels: [],
+        members: [],
+        checklists: []
       };
       dispatch(addCard({ columnId, card: newCard }));
     } catch (error) {
@@ -227,52 +234,122 @@ const Board = () => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="board-container">
-        <aside className="side-panel">
-          <div className="side-panel-content">
-            <button title="Agregar TABLERO"><i className="fas fa-plus"></i></button>
-            <button title="Agregar USUARIO a tablero"><i className="fas fa-user-plus"></i></button>
-            <button title="Ver USUARIOS CONECTADOS"><i className="fas fa-users"></i></button>
-            <Logout />
-            {user && <Link to={`/profile/${user.id}`} title="Mi Perfil"><i className="fas fa-user"></i></Link>}
-          </div>
-        </aside>
-        <div className="main-content">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Buscar..."
-              value={searchTerm}
-              onChange={handleSearch}
-              className="search-input"
-            />
-          </div>
-          <div className="columns">
-            {Object.values(columns).map(column => (
-              <Column
-                key={column.id}
-                column={column}
-                searchTerm={searchTerm}
-                onUpdateColumnTitle={handleUpdateColumnTitle}
-                onAddCard={handleAddCard}
-                onEditCard={handleEditCard}
-                onDeleteCard={handleDeleteCard}
-              />
-            ))}
-            <div className="new-column-form">
-              <input
-                type="text"
-                placeholder="Nuevo título de columna"
-                value={newColumnTitle}
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                className="new-column-title"
-              />
-              <button onClick={handleAddColumn} className="add-column-button">Agregar Columna</button>
-            </div>
-          </div>
-        </div>
+        <SidePanel user={user} />
+        <MainContent
+          columns={columns}
+          searchTerm={searchTerm}
+          newColumnTitle={newColumnTitle}
+          handleSearch={handleSearch}
+          handleUpdateColumnTitle={handleUpdateColumnTitle}
+          handleAddCard={handleAddCard}
+          handleEditCard={handleEditCard}
+          handleDeleteCard={handleDeleteCard}
+          setNewColumnTitle={setNewColumnTitle}
+          handleAddColumn={handleAddColumn}
+        />
       </div>
     </DragDropContext>
   );
+};
+
+const SidePanel = ({ user }) => (
+  <aside className="side-panel">
+    <div className="side-panel-content">
+      <button title="Agregar TABLERO"><i className="fas fa-plus"></i></button>
+      <button title="Agregar USUARIO a tablero"><i className="fas fa-user-plus"></i></button>
+      <button title="Ver USUARIOS CONECTADOS"><i className="fas fa-users"></i></button>
+      <Logout />
+      {user && <Link to={`/profile/${user.id}`} title="Mi Perfil"><i className="fas fa-user"></i></Link>}
+    </div>
+  </aside>
+);
+
+SidePanel.propTypes = {
+  user: PropTypes.object,
+};
+
+const MainContent = ({
+  columns,
+  searchTerm,
+  newColumnTitle,
+  handleSearch,
+  handleUpdateColumnTitle,
+  handleAddCard,
+  handleEditCard,
+  handleDeleteCard,
+  setNewColumnTitle,
+  handleAddColumn,
+}) => (
+  <div className="main-content">
+    <SearchBar searchTerm={searchTerm} handleSearch={handleSearch} />
+    <div className="columns">
+      {Object.values(columns).map((column) => (
+        <Column
+          key={column.id}
+          column={column}
+          searchTerm={searchTerm}
+          onUpdateColumnTitle={handleUpdateColumnTitle}
+          onAddCard={handleAddCard}
+          onEditCard={handleEditCard}
+          onDeleteCard={handleDeleteCard}
+        />
+      ))}
+      <NewColumnForm
+        newColumnTitle={newColumnTitle}
+        setNewColumnTitle={setNewColumnTitle}
+        handleAddColumn={handleAddColumn}
+      />
+    </div>
+  </div>
+);
+
+MainContent.propTypes = {
+  columns: PropTypes.object.isRequired,
+  searchTerm: PropTypes.string.isRequired,
+  newColumnTitle: PropTypes.string.isRequired,
+  handleSearch: PropTypes.func.isRequired,
+  handleUpdateColumnTitle: PropTypes.func.isRequired,
+  handleAddCard: PropTypes.func.isRequired,
+  handleEditCard: PropTypes.func.isRequired,
+  handleDeleteCard: PropTypes.func.isRequired,
+  setNewColumnTitle: PropTypes.func.isRequired,
+  handleAddColumn: PropTypes.func.isRequired,
+};
+
+const SearchBar = ({ searchTerm, handleSearch }) => (
+  <div className="search-container">
+    <input
+      type="text"
+      placeholder="Buscar..."
+      value={searchTerm}
+      onChange={handleSearch}
+      className="search-input"
+    />
+  </div>
+);
+
+SearchBar.propTypes = {
+  searchTerm: PropTypes.string.isRequired,
+  handleSearch: PropTypes.func.isRequired,
+};
+
+const NewColumnForm = ({ newColumnTitle, setNewColumnTitle, handleAddColumn }) => (
+  <div className="new-column-form">
+    <input
+      type="text"
+      placeholder="Nuevo título de columna"
+      value={newColumnTitle}
+      onChange={(e) => setNewColumnTitle(e.target.value)}
+      className="new-column-title"
+    />
+    <button onClick={handleAddColumn} className="add-column-button">Agregar Columna</button>
+  </div>
+);
+
+NewColumnForm.propTypes = {
+  newColumnTitle: PropTypes.string.isRequired,
+  setNewColumnTitle: PropTypes.func.isRequired,
+  handleAddColumn: PropTypes.func.isRequired,
 };
 
 export default Board;

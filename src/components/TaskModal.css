@@ -1,4 +1,3 @@
-/* TaskModal.css */
 .task-modal-overlay {
   position: fixed;
   top: 0;
@@ -9,6 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .task-modal {
@@ -18,17 +18,19 @@
   border-radius: 10px;
   outline: none;
   max-height: 80vh;
-  width: 60%;
+  width: 90%;
   max-width: 720px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .task-modal-content {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .task-modal-header {
@@ -36,6 +38,11 @@
   background-color: #34495e;
   color: #ecf0f1;
   border-bottom: 1px solid #555;
+  font-size: 1.5em;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .task-modal-title {
@@ -55,6 +62,7 @@
   padding: 16px;
   overflow-y: auto;
   background-color: #34495e;
+  flex-grow: 1;
 }
 
 .task-modal-description {
@@ -84,21 +92,26 @@
 }
 
 .task-modal-sidepanel {
-  width: 150px;
+  width: 200px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .task-modal-sidepanel button {
-  padding: 8px;
+  padding: 10px;
   border-radius: 5px;
   background-color: #5d637e;
   color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.task-modal-sidepanel button:hover {
+  background-color: #4a506e;
 }
 
 .task-modal-footer {
@@ -106,14 +119,18 @@
   background-color: #34495e;
   border-top: 1px solid #555;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .task-modal-save-button, .task-modal-cancel-button {
-  padding: 10px 15px;
+  padding: 10px 20px;
   border-radius: 5px;
   background-color: #16a085;
   color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
 }
 
 .task-modal-cancel-button {
@@ -121,5 +138,34 @@
 }
 
 .task-modal-save-button:hover, .task-modal-cancel-button:hover {
+  background-color: #1abc9c;
   opacity: 0.85;
+}
+
+.task-modal-cancel-button:hover {
+  background-color: #e74c3c;
+  opacity: 0.85;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+  .task-modal {
+    width: 90%;
+  }
+
+  .task-modal-body {
+    flex-direction: column;
+  }
+
+  .task-modal-description {
+    margin-right: 0;
+    margin-bottom: 16px;
+  }
+
+  .task-modal-sidepanel {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
 }
