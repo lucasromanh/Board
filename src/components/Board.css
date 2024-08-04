@@ -6,6 +6,19 @@
   overflow: hidden; /* Para asegurar que el contenido no se desborde */
 }
 
+.board-header {
+  padding: 10px;
+  background-color: #20232a;
+  border-bottom: 1px solid #444;
+  text-align: center;
+  color: #61dafb;
+}
+
+.board-title {
+  font-size: 24px;
+  color: #61dafb;
+}
+
 .side-panel {
   width: 70px;
   background-color: #20232a;
@@ -123,6 +136,32 @@
 
 .toggle-button:hover {
   color: #61dafb;
+}
+
+@media (max-width: 768px) {
+  .side-panel {
+    width: 50px;
+  }
+
+  .side-panel.expanded {
+    width: 150px;
+  }
+
+  .side-panel-content button, .side-panel-content a {
+    font-size: 16px;
+  }
+
+  .new-column-form {
+    min-width: 150px;
+  }
+
+  .new-column-title, .add-column-button {
+    width: 100%;
+  }
+
+  .columns {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 768px) {

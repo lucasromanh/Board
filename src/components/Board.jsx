@@ -1,10 +1,10 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
+import { useParams, Link } from 'react-router-dom';
 import { addCard, updateCard, removeCard, setSearchText, addColumn, updateColumnTitle, setColumns, moveCard } from '../store';
 import Column from './Column';
 import './Board.css';
-import { Link } from 'react-router-dom';
 import useAuth from '../context/useAuth';
 import api from '../api';
 import Logout from './Logout';
@@ -12,11 +12,13 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { DragDropContext } from '@hello-pangea/dnd';
 
 const Board = () => {
+  const { boardId } = useParams();
   const columns = useSelector(state => state.board.columns);
   const searchTerm = useSelector(state => state.search);
   const dispatch = useDispatch();
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const { user, refreshToken } = useAuth();
+  const [boardTitle, setBoardTitle] = useState('');
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -27,7 +29,7 @@ const Board = () => {
       }
 
       try {
-        const response = await api.get('/tareas', {
+        const response = await api.get(`/tareas?boardId=${boardId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -84,8 +86,27 @@ const Board = () => {
       }
     };
 
+    const loadBoardTitle = async () => {
+      try {
+        const response = await api.get(`/boards/${boardId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (response.status === 200) {
+          setBoardTitle(response.data.Titulo);
+        } else {
+          console.error('Error al cargar el título del tablero:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error al cargar el título del tablero:', error);
+      }
+    };
+
     loadTasks();
-  }, [dispatch]);
+    loadBoardTitle();
+  }, [boardId, dispatch]);
 
   const validateTask = (task) => {
     const valid = task.id && task.title && task.description && task.status !== undefined && task.board_id;
@@ -102,7 +123,7 @@ const Board = () => {
   const handleAddColumn = async () => {
     if (newColumnTitle) {
       try {
-        const response = await api.post('/columnas', { ProyectoID: user.defaultBoardId, ColumnaNombre: newColumnTitle }, {
+        const response = await api.post('/columnas', { ProyectoID: boardId, ColumnaNombre: newColumnTitle }, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -140,7 +161,7 @@ const Board = () => {
     try {
       const estado = columnId === 'column-1' ? 'pendiente' : columnId === 'column-2' ? 'en_proceso' : 'completada';
       const response = await api.post('/tareas', {
-        ProyectoID: user.defaultBoardId,
+        ProyectoID: boardId,
         Titulo: title,
         Descripcion: content,
         Estado: estado,
@@ -235,18 +256,29 @@ const Board = () => {
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="board-container">
         <SidePanel user={user} />
-        <MainContent
-          columns={columns}
-          searchTerm={searchTerm}
-          newColumnTitle={newColumnTitle}
-          handleSearch={handleSearch}
-          handleUpdateColumnTitle={handleUpdateColumnTitle}
-          handleAddCard={handleAddCard}
-          handleEditCard={handleEditCard}
-          handleDeleteCard={handleDeleteCard}
-          setNewColumnTitle={setNewColumnTitle}
-          handleAddColumn={handleAddColumn}
-        />
+        <div className="main-content">
+          <SearchBar searchTerm={searchTerm} handleSearch={handleSearch} />
+          <h2 className="board-title">{boardTitle}</h2>
+          <div className="columns">
+            {Object.values(columns).map((column) => (
+              <Column
+                key={column.id}
+                column={column}
+                boardId={parseInt(boardId, 10)}  // Pass the boardId as prop
+                searchTerm={searchTerm}
+                onUpdateColumnTitle={handleUpdateColumnTitle}
+                onAddCard={handleAddCard}
+                onEditCard={handleEditCard}
+                onDeleteCard={handleDeleteCard}
+              />
+            ))}
+            <NewColumnForm
+              newColumnTitle={newColumnTitle}
+              setNewColumnTitle={setNewColumnTitle}
+              handleAddColumn={handleAddColumn}
+            />
+          </div>
+        </div>
       </div>
     </DragDropContext>
   );
@@ -255,9 +287,10 @@ const Board = () => {
 const SidePanel = ({ user }) => (
   <aside className="side-panel">
     <div className="side-panel-content">
-      <button title="Agregar TABLERO"><i className="fas fa-plus"></i></button>
-      <button title="Agregar USUARIO a tablero"><i className="fas fa-user-plus"></i></button>
-      <button title="Ver USUARIOS CONECTADOS"><i className="fas fa-users"></i></button>
+      <Link to="/add-board" title="Agregar TABLERO"><i className="fas fa-plus"></i></Link>
+      <Link to="/add-user-to-board" title="Agregar USUARIO a tablero"><i className="fas fa-user-plus"></i></Link>
+      <Link to="/connected-users" title="Ver USUARIOS CONECTADOS"><i className="fas fa-users"></i></Link>
+      <Link to="/invitations" title="Enviar invitaciones"><i className="fas fa-envelope"></i></Link>
       <Logout />
       {user && <Link to={`/profile/${user.id}`} title="Mi Perfil"><i className="fas fa-user"></i></Link>}
     </div>
@@ -266,54 +299,6 @@ const SidePanel = ({ user }) => (
 
 SidePanel.propTypes = {
   user: PropTypes.object,
-};
-
-const MainContent = ({
-  columns,
-  searchTerm,
-  newColumnTitle,
-  handleSearch,
-  handleUpdateColumnTitle,
-  handleAddCard,
-  handleEditCard,
-  handleDeleteCard,
-  setNewColumnTitle,
-  handleAddColumn,
-}) => (
-  <div className="main-content">
-    <SearchBar searchTerm={searchTerm} handleSearch={handleSearch} />
-    <div className="columns">
-      {Object.values(columns).map((column) => (
-        <Column
-          key={column.id}
-          column={column}
-          searchTerm={searchTerm}
-          onUpdateColumnTitle={handleUpdateColumnTitle}
-          onAddCard={handleAddCard}
-          onEditCard={handleEditCard}
-          onDeleteCard={handleDeleteCard}
-        />
-      ))}
-      <NewColumnForm
-        newColumnTitle={newColumnTitle}
-        setNewColumnTitle={setNewColumnTitle}
-        handleAddColumn={handleAddColumn}
-      />
-    </div>
-  </div>
-);
-
-MainContent.propTypes = {
-  columns: PropTypes.object.isRequired,
-  searchTerm: PropTypes.string.isRequired,
-  newColumnTitle: PropTypes.string.isRequired,
-  handleSearch: PropTypes.func.isRequired,
-  handleUpdateColumnTitle: PropTypes.func.isRequired,
-  handleAddCard: PropTypes.func.isRequired,
-  handleEditCard: PropTypes.func.isRequired,
-  handleDeleteCard: PropTypes.func.isRequired,
-  setNewColumnTitle: PropTypes.func.isRequired,
-  handleAddColumn: PropTypes.func.isRequired,
 };
 
 const SearchBar = ({ searchTerm, handleSearch }) => (

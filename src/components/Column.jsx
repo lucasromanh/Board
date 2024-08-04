@@ -6,7 +6,7 @@ import './Column.css';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
 
-const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard, onDeleteCard }) => {
+const Column = ({ column, boardId, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard, onDeleteCard }) => {
   const { user, refreshToken } = useAuth();
   const [newCardTitle, setNewCardTitle] = useState('');
   const [newCardContent, setNewCardContent] = useState('');
@@ -38,7 +38,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
       const cardData = {
         Titulo: newCardTitle,
         Descripcion: newCardContent,
-        ProyectoID: user.defaultBoardId,
+        ProyectoID: boardId,  // Use the boardId passed as prop
         Estado: estado
       };
 
@@ -60,7 +60,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
             title: newCardTitle,
             content: newCardContent,
             estado: column.id === 'column-1' ? 'pendiente' : column.id === 'column-2' ? 'en_proceso' : 'completada',
-            proyectoID: user.defaultBoardId
+            proyectoID: boardId
           });
           setNewCardTitle('');
           setNewCardContent('');
@@ -86,7 +86,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
                 title: newCardTitle,
                 content: newCardContent,
                 estado: column.id === 'column-1' ? 'pendiente' : column.id === 'column-2' ? 'en_proceso' : 'completada',
-                proyectoID: user.defaultBoardId
+                proyectoID: boardId
               });
               setNewCardTitle('');
               setNewCardContent('');
@@ -128,7 +128,7 @@ const Column = ({ column, searchTerm, onUpdateColumnTitle, onAddCard, onEditCard
     }
   
     const taskToUpdate = {
-      ProyectoID: user.defaultBoardId,
+      ProyectoID: boardId, // Use the boardId passed as prop
       Titulo: updatedTask.Titulo || updatedTask.title,
       Descripcion: updatedTask.Descripcion || updatedTask.content,
       Importancia: updatedTask.Importancia || 1,
@@ -373,6 +373,7 @@ Column.propTypes = {
       members: PropTypes.arrayOf(PropTypes.string),
     })).isRequired,
   }).isRequired,
+  boardId: PropTypes.number.isRequired,
   searchTerm: PropTypes.string.isRequired,
   onUpdateColumnTitle: PropTypes.func.isRequired,
   onAddCard: PropTypes.func.isRequired,
